@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم | Dar Elsalam Store Dashboard</title>
+  <link rel="icon" type="image/jpeg" href="images/logo-square.jpg">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ==================== SECURITY PIN AUTH SCREEN ==================== -->
+  <div id="pinScreen" class="pin-screen-container">
+    <div class="pin-box">
+      <img src="images/logo-square.jpg" alt="Dar Elsalam Store Logo" style="width: 72px; height: 72px; border-radius: 50%; border: 2px solid #d4af37; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); margin-bottom: 14px;">
+      <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">لوحة تحكم متجر دار السلام</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">أدخل رمز المرور السري للدخول إلى إدارة المنتجات والعروض</p>
+      
+      <form id="pinForm">
+        <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" autofocus required>
+        <p id="pinError" style="color: var(--admin-danger); font-size: 0.85rem; display: none; margin-bottom: 14px;">رمز المرور غير صحيح!</p>
+        <button type="submit" class="btn btn-cyan" style="width: 100%; justify-content: center; padding: 12px;">
+          تسجيل الدخول للوحة التحكم
+        </button>
+      </form>
+      <div style="margin-top: 20px;">
+        <small style="color: var(--text-muted); font-size: 0.8rem;">(رمز المرور الافتراضي: <strong>1234</strong> — يمكنك تعديله من الإعدادات)</small>
+      </div>
+      <div style="margin-top: 16px;">
+        <a href="index.html" style="color: var(--admin-cyan); font-size: 0.9rem;">← العودة للمتجر الرئيسي</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD LAYOUT ==================== -->
+  <div id="dashboardApp" class="admin-wrapper" style="display: none;">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <img src="images/logo-square.jpg" alt="Dar Elsalam Store Logo" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid #d4af37; object-fit: cover; box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);">
+        <div class="admin-brand-info">
+          <h2>Dar Elsalam</h2>
+          <span>لوحة إدارة المتجر</span>
+        </div>
+      </div>
+
+      <ul class="admin-nav-list">
+        <li>
+          <button class="admin-nav-btn active" data-tab="productsTab">
+            <span>📱</span>
+            <span>إدارة المنتجات</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-btn" data-tab="offersTab">
+            <span>🔥</span>
+            <span>عروض الافتتاح والخصومات</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-btn" data-tab="ordersTab">
+            <span>📦</span>
+            <span>سجل الطلبات المسجلة</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-btn" data-tab="settingsTab">
+            <span>⚙️</span>
+            <span>إعدادات النظام والبيانات</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="admin-sidebar-footer">
+        <a href="index.html" class="btn-back-store" target="_blank" rel="noopener">
+          <span>🌐</span>
+          <span>معاينة المتجر المباشر ↗</span>
+        </a>
+        <button id="btnLogout" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+          <span>تسجيل الخروج</span>
+          <span>🚪</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Content Workspace -->
+    <main class="admin-main">
+
+      <!-- ==================== TAB 1: PRODUCTS MANAGEMENT ==================== -->
+      <section id="productsTab" class="tab-section">
+        <div class="admin-topbar">
+          <div>
+            <h1 class="admin-page-title">إدارة المنتجات والخدمات</h1>
+            <p class="admin-page-desc">أضف، عدل، أو احذف منتجات متجر Dar Elsalam Store بكل سهولة</p>
+          </div>
+          <button id="btnAddNewProduct" class="btn btn-cyan">
+            <span>➕ إضافة منتج جديد</span>
+          </button>
+        </div>
+
+        <div class="admin-card">
+          <div class="card-title-row">
+            <h3>قائمة المنتجات الحالية (<span id="productsCount">0</span>)</h3>
+            <div style="display: flex; gap: 10px;">
+              <select id="filterAdminCategory" class="form-control" style="width: auto; padding: 6px 14px;">
+                <option value="all">كل التصنيفات</option>
+                <option value="صيانة">صيانة</option>
+                <option value="إكسسوارات">إكسسوارات</option>
+                <option value="سماعات">سماعات</option>
+                <option value="ساعات ذكية">ساعات ذكية</option>
+                <option value="إلكترونيات">إلكترونيات</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">الصورة</th>
+                  <th>اسم المنتج</th>
+                  <th>التصنيف</th>
+                  <th>السعر الحالي</th>
+                  <th>السعر قبل الخصم</th>
+                  <th>حالة التوفر</th>
+                  <th style="width: 140px; text-align: center;">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="adminProductsTableBody">
+                <!-- Dynamically populated via admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: OFFERS MANAGEMENT ==================== -->
+      <section id="offersTab" class="tab-section" style="display: none;">
+        <div class="admin-topbar">
+          <div>
+            <h1 class="admin-page-title">إدارة عروض الافتتاح 🔥</h1>
+            <p class="admin-page-desc">تحكم في العرض الترويجي الحصري، مؤقت العد التنازلي، والأسعار</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <form id="offerConfigForm" class="form-grid">
+            
+            <div class="form-group full">
+              <label class="switch-label">
+                <input type="checkbox" id="offerEnabledCheckbox">
+                <span>تفعيل ونشر هذا العرض في واجهة المتجر الرئيسية</span>
+              </label>
+            </div>
+
+            <div class="form-group full">
+              <label for="offerTitleInput">عنوان العرض الترويجي</label>
+              <input type="text" id="offerTitleInput" class="form-control" required>
+            </div>
+
+            <div class="form-group full">
+              <label for="offerDescInput">الوصف التفصيلي للعرض</label>
+              <textarea id="offerDescInput" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="offerNewPriceInput">السعر بعد الخصم (ج.م)</label>
+              <input type="number" id="offerNewPriceInput" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label for="offerOldPriceInput">السعر الأصلي قبل الخصم (ج.م)</label>
+              <input type="number" id="offerOldPriceInput" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="offerDiscountBadgeInput">شارة الخصم (نص الشارة)</label>
+              <input type="text" id="offerDiscountBadgeInput" class="form-control" placeholder="مثال: وفر 700 ج.م (36%-)">
+            </div>
+
+            <div class="form-group">
+              <label for="offerExpiryInput">تاريخ ووقت انتهاء العد التنازلي للعرض</label>
+              <input type="datetime-local" id="offerExpiryInput" class="form-control" required>
+            </div>
+
+            <div class="form-group full">
+              <label for="offerImageInput">مسار صورة العرض أو رابطها</label>
+              <input type="text" id="offerImageInput" class="form-control" placeholder="images/offers/launch-offer.svg">
+            </div>
+
+            <div class="form-group full" style="margin-top: 10px;">
+              <button type="submit" class="btn btn-cyan" style="padding: 12px 30px;">
+                <span>حفظ وتحديث العرض الآن 💾</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: ORDERS LOG ==================== -->
+      <section id="ordersTab" class="tab-section" style="display: none;">
+        <div class="admin-topbar">
+          <div>
+            <h1 class="admin-page-title">سجل الطلبات الواردة</h1>
+            <p class="admin-page-desc">الطلبات التي قام العملاء بتأكيدها عبر نموذج الشحن في الموقع</p>
+          </div>
+          <button id="btnClearOrders" class="btn btn-secondary">
+            <span>مسح السجل</span>
+          </button>
+        </div>
+
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>رقم الطلب</th>
+                  <th>تاريخ الطلب</th>
+                  <th>اسم العميل</th>
+                  <th>رقم الهاتف</th>
+                  <th>المحافظة</th>
+                  <th>المنتج والكمية</th>
+                  <th>العنوان والملاحظات</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: GENERAL SETTINGS ==================== -->
+      <section id="settingsTab" class="tab-section" style="display: none;">
+        <div class="admin-topbar">
+          <div>
+            <h1 class="admin-page-title">إعدادات النظام وربط قواعد البيانات</h1>
+            <p class="admin-page-desc">تعديل رمز المرور والتحكم في حفظ البيانات محلياً أو سحابياً</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 16px;">تغيير رمز مرور لوحة التحكم (PIN)</h3>
+          <div style="display: flex; gap: 14px; max-width: 450px;">
+            <input type="password" id="newPinInput" class="form-control" placeholder="الرمز الجديد (أرقام أو حروف)" maxlength="8">
+            <button id="btnSavePin" class="btn btn-cyan">حفظ الرمز</button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom: 12px; color: var(--admin-warning);">إعادة ضبط البيانات الأصلية</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+            إذا رغبت في استعادة المنتجات الافتراضية وعرض الافتتاح الأصلي، اضغط على الزر أدناه:
+          </p>
+          <button id="btnResetDefaults" class="btn btn-danger">
+            <span>⚠️ استعادة المنتجات الافتراضية للمتجر</span>
+          </button>
+        </div>
+
+        <!-- Backend Developer Note -->
+        <div class="admin-card" style="border-color: rgba(16, 185, 129, 0.3);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span style="font-size: 1.5rem;">🔌</span>
+            <h3 style="color: #34d399;">ملاحظة هندسية لربط قاعدة بيانات سحابية (Backend Integration)</h3>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7;">
+            يعمل هذا النظام حالياً بالكامل بواسطة متصفح العميل وتقنية <code>localStorage</code> لضمان استقلالية المشروع بدون أي خادم. لربطه بنظام سحابي حقيقي في المستقبل (Node.js/Express, Python/FastAPI, Supabase, أو Firebase)، قمنا بفصل دوال التخزين <code>getStoredProducts()</code> و<code>saveStoredProducts()</code> بحيث تحتاج فقط لاستبدالها بطلب <code>fetch('/api/products')</code> بكل سلاسة وأمان.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==================== ADD / EDIT PRODUCT MODAL ==================== -->
+  <div id="productEditorModal" class="admin-modal-backdrop">
+    <div class="admin-modal">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h3 id="modalEditorTitle" style="font-size: 1.3rem; font-weight: 800;">إضافة منتج جديد</h3>
+        <button id="btnCloseEditor" class="btn btn-secondary" style="padding: 6px 12px;">✕</button>
+      </div>
+
+      <form id="productForm" class="form-grid">
+        <input type="hidden" id="editProductId">
+
+        <div class="form-group full">
+          <label for="prodNameInput">اسم المنتج أو الخدمة *</label>
+          <input type="text" id="prodNameInput" class="form-control" required placeholder="مثال: سماعة بلوتوث أو صيانة شاشة">
+        </div>
+
+        <div class="form-group">
+          <label for="prodCategoryInput">التصنيف *</label>
+          <select id="prodCategoryInput" class="form-control" required>
+            <option value="صيانة">صيانة موبايلات</option>
+            <option value="إكسسوارات">إكسسوارات موبايلات</option>
+            <option value="سماعات">سماعات وAirPods</option>
+            <option value="ساعات ذكية">Smart Watches</option>
+            <option value="إلكترونيات">منتجات إلكترونية وشواحن</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="switch-label" style="margin-top: 30px;">
+            <input type="checkbox" id="prodAvailableCheckbox" checked>
+            <span>متوفر في المخزون</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="prodPriceInput">السعر الحالي (ج.م) *</label>
+          <input type="number" id="prodPriceInput" class="form-control" required placeholder="مثال: 450">
+        </div>
+
+        <div class="form-group">
+          <label for="prodOldPriceInput">السعر قبل الخصم (اختياري)</label>
+          <input type="number" id="prodOldPriceInput" class="form-control" placeholder="مثال: 600">
+        </div>
+
+        <div class="form-group full">
+          <label for="prodDescInput">الوصف الكامل للمنتج</label>
+          <textarea id="prodDescInput" class="form-control" rows="3" placeholder="اكتب تفاصيل ومواصفات المنتج..."></textarea>
+        </div>
+
+        <div class="form-group full">
+          <label for="prodFeaturesInput">المميزات (كل ميزة في سطر منفصل)</label>
+          <textarea id="prodFeaturesInput" class="form-control" rows="3" placeholder="ميزة 1&#10;ميزة 2&#10;ميزة 3"></textarea>
+        </div>
+
+        <!-- Image Input: URL or File Upload -->
+        <div class="form-group full">
+          <label for="prodImageInput">رابط أو مسار صورة المنتج</label>
+          <input type="text" id="prodImageInput" class="form-control" placeholder="images/products/phone-repair.svg أو رابط خارجي">
+          <div style="margin-top: 10px; display: flex; align-items: center; gap: 12px;">
+            <label class="btn btn-secondary" style="cursor: pointer;">
+              <span>📁 أو ارفع صورة من جهازك</span>
+              <input type="file" id="prodImageFileInput" accept="image/*" style="display: none;">
+            </label>
+            <span id="fileNameDisplay" style="font-size: 0.85rem; color: var(--admin-cyan);"></span>
+          </div>
+        </div>
+
+        <div class="form-group full" style="margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" id="btnCancelEdit" class="btn btn-secondary">إلغاء</button>
+          <button type="submit" class="btn btn-cyan" style="padding: 10px 28px;">حفظ المنتج ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin JS Script -->
+  <script src="admin.js"></script>
+</body>
+</html>

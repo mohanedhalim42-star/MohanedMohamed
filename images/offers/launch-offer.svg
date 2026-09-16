@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="offerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#110d29" />
+      <stop offset="50%" stop-color="#0e1738" />
+      <stop offset="100%" stop-color="#070a16" />
+    </linearGradient>
+    <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff416c" />
+      <stop offset="100%" stop-color="#ff4b2b" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7971e" />
+      <stop offset="100%" stop-color="#ffd200" />
+    </linearGradient>
+    <filter id="offerGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="20" result="b" />
+      <feComposite in="SourceGraphic" in2="b" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" rx="20" fill="url(#offerBg)" stroke="#ff416c" stroke-width="2" />
+  
+  <!-- Glowing Background Orbs -->
+  <circle cx="200" cy="250" r="180" fill="#ff4b2b" opacity="0.12" filter="url(#offerGlow)" />
+  <circle cx="600" cy="250" r="180" fill="#00e5ff" opacity="0.1" filter="url(#offerGlow)" />
+
+  <!-- VIP Launch Bundle Illustration -->
+  <!-- Smart Watch -->
+  <g transform="translate(180, 100)">
+    <rect x="25" y="0" width="50" height="280" rx="10" fill="#1e293b" />
+    <rect x="10" y="70" width="80" height="115" rx="20" fill="#0f172a" stroke="url(#goldGrad)" stroke-width="3" />
+    <text x="50" y="135" fill="#ffffff" font-family="'Segoe UI', Arial" font-size="18" font-weight="bold" text-anchor="middle">Ultra</text>
+  </g>
+
+  <!-- AirPods Case -->
+  <g transform="translate(320, 140)">
+    <rect x="0" y="30" width="120" height="95" rx="30" fill="#0f172a" stroke="#00e5ff" stroke-width="2.5" />
+    <circle cx="60" cy="80" r="4" fill="#22c55e" />
+    <!-- Floating Pod -->
+    <ellipse cx="60" cy="0" rx="16" ry="14" fill="#f8fafc" />
+    <rect x="56" y="8" width="8" height="30" rx="4" fill="#f8fafc" />
+  </g>
+
+  <!-- GaN Fast Charger & Cable -->
+  <g transform="translate(480, 130)">
+    <rect x="20" y="20" width="90" height="110" rx="14" fill="#1e293b" stroke="#ff4b2b" stroke-width="2" />
+    <text x="65" y="75" fill="#f8fafc" font-family="'Segoe UI', Arial" font-size="16" font-weight="bold" text-anchor="middle">65W</text>
+    <text x="65" y="95" fill="#ff4b2b" font-family="'Segoe UI', Arial" font-size="11" text-anchor="middle">GaN FAST</text>
+    <path d="M10 130 C 50 170, 100 130, 130 180" fill="none" stroke="#00e5ff" stroke-width="6" stroke-dasharray="4,4" />
+  </g>
+
+  <!-- Sparkle Stars -->
+  <text x="120" y="100" font-size="28" fill="#ffd200">✨</text>
+  <text x="680" y="120" font-size="32" fill="#ffd200">🔥</text>
+  <text x="650" y="320" font-size="26" fill="#00e5ff">⚡</text>
+
+  <!-- Mega Offer Banner Overlay -->
+  <g transform="translate(150, 390)">
+    <rect width="500" height="70" rx="35" fill="url(#fireGrad)" filter="url(#offerGlow)" />
+    <text x="250" y="44" fill="#ffffff" font-family="'Segoe UI', Tahoma" font-size="22" font-weight="900" text-anchor="middle">🎉 باقة الافتتاح الكبرى: ساعة + سماعة + شاحن سريع</text>
+  </g>
+</svg>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgChg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1226" />
+      <stop offset="100%" stop-color="#04060d" />
+    </linearGradient>
+    <linearGradient id="flashGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#ef4444" />
+    </linearGradient>
+    <filter id="chgGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14" result="b" />
+      <feComposite in="SourceGraphic" in2="b" operator="over" />
+    </filter>
+  </defs>
+  <rect width="600" height="500" rx="16" fill="url(#bgChg)" />
+  <circle cx="300" cy="220" r="140" fill="#f59e0b" opacity="0.08" filter="url(#chgGlow)" />
+
+  <!-- 65W GaN Fast Charger Plug -->
+  <g transform="translate(180, 80)">
+    <!-- Main Block -->
+    <rect x="0" y="30" width="120" height="150" rx="16" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+    <!-- Prongs -->
+    <rect x="25" y="0" width="14" height="30" rx="4" fill="#94a3b8" />
+    <rect x="81" y="0" width="14" height="30" rx="4" fill="#94a3b8" />
+    <!-- Ports on Face -->
+    <rect x="25" y="60" width="70" height="14" rx="4" fill="#0f172a" stroke="#00e5ff" stroke-width="1.5" />
+    <text x="60" y="71" fill="#00e5ff" font-family="'Segoe UI', Arial" font-size="9" text-anchor="middle">Type-C 65W</text>
+    <rect x="25" y="90" width="70" height="14" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+    <text x="60" y="101" fill="#38bdf8" font-family="'Segoe UI', Arial" font-size="9" text-anchor="middle">Type-C 30W</text>
+    <rect x="25" y="120" width="70" height="18" rx="4" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5" />
+    <text x="60" y="133" fill="#f59e0b" font-family="'Segoe UI', Arial" font-size="9" font-weight="bold" text-anchor="middle">USB-A QC 3.0</text>
+    
+    <!-- Lightning Bolt Badge -->
+    <path d="M60 155 L52 170 L58 170 L54 185 L68 168 L61 168 Z" fill="#f59e0b" filter="url(#chgGlow)" />
+  </g>
+
+  <!-- Braided Cable Swirl -->
+  <g transform="translate(310, 110)">
+    <path d="M0 70 C 60 70, 80 180, 140 160 S 100 280, 30 260" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" stroke-dasharray="6,4" />
+    <!-- Metal Cable Head -->
+    <rect x="20" y="248" width="55" height="24" rx="6" fill="#334155" stroke="#00e5ff" stroke-width="1.5" />
+    <rect x="0" y="253" width="20" height="14" rx="3" fill="#94a3b8" />
+  </g>
+
+  <!-- Title Badge -->
+  <rect x="155" y="425" width="290" height="38" rx="19" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" />
+  <text x="300" y="449" fill="#ffffff" font-family="'Segoe UI', Tahoma" font-size="14" font-weight="bold" text-anchor="middle">⚡ شاحن سريع 65W GaN + كابل مضفر</text>
+</svg>
