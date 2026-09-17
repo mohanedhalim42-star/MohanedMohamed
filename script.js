@@ -1,6 +1,8 @@
 /**
  * ==========================================================================
  * DAR ELSALAM STORE - Official Frontend Logic (Pure Vanilla JavaScript)
+ * Firebase Firestore is the PRIMARY data source.
+ * localStorage is used only as an offline cache / fallback.
  * Interactive Catalog, Live Search, Countdown Timer & WhatsApp Ordering
  * ==========================================================================
  */
@@ -205,19 +207,31 @@ const btnOfferOrder = document.getElementById('btnOfferOrder');
 /* ==========================================================================
    1. PRODUCTS CATALOG & FILTERING
    ========================================================================== */
+
+/**
+ * Initialize products – prefers Firestore (via onSnapshot hook in index.html).
+ * Falls back to localStorage cache, then DEFAULT_PRODUCTS if nothing exists.
+ */
 function initProducts() {
-  const local = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-  if (local) {
+  // Try loading from localStorage cache first for instant display
+  const cached = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+  if (cached) {
     try {
-      storeProducts = JSON.parse(local);
-    } catch {
-      storeProducts = [...DEFAULT_PRODUCTS];
-    }
-  } else {
-    storeProducts = [...DEFAULT_PRODUCTS];
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(storeProducts));
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        storeProducts = parsed;
+        renderProducts();
+      }
+    } catch { /* ignore */ }
   }
-  renderProducts();
+
+  // If nothing in cache, use defaults and render immediately
+  if (storeProducts.length === 0) {
+    storeProducts = [...DEFAULT_PRODUCTS];
+    renderProducts();
+  }
+  // Firestore's onSnapshot (in index.html) will call darUpdateProductsCatalog
+  // as soon as real-time data arrives, which will re-render automatically.
 }
 
 function renderProducts() {
@@ -226,8 +240,8 @@ function renderProducts() {
   const filtered = storeProducts.filter(item => {
     const matchCat = (currentCategory === 'all' || item.category === currentCategory);
     const q = searchQuery.trim().toLowerCase();
-    const matchSearch = !q || 
-      (item.name && item.name.toLowerCase().includes(q)) || 
+    const matchSearch = !q ||
+      (item.name && item.name.toLowerCase().includes(q)) ||
       (item.description && item.description.toLowerCase().includes(q)) ||
       (item.category && item.category.toLowerCase().includes(q));
     return matchCat && matchSearch;
@@ -259,7 +273,7 @@ function renderProducts() {
           <button type="button" class="btn-product-details" onclick="window.darOpenProductModal(${item.id})">
             عرض التفاصيل
           </button>
-          <a href="https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(`مرحباً Dar Elsalam Store، أستفسر عن توفر منتج: ${item.name} (السعر: ${item.price} ج.م)`)}" 
+          <a href="https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(`مرحباً Dar Elsalam Store، أستفسر عن توفر منتج: ${item.name} (السعر: ${item.price} ج.م)`)}"
              target="_blank" rel="noopener noreferrer" class="btn-product-whatsapp" title="طلب مباشر عبر واتساب">
             💬
           </a>
@@ -361,11 +375,17 @@ if (resetFiltersBtn) {
 /* ==========================================================================
    2. OPENING OFFER & COUNTDOWN TIMER
    ========================================================================== */
+
+/**
+ * Initialize opening offer – prefers Firestore (via onSnapshot in index.html).
+ * Falls back to localStorage cache, then built-in default.
+ */
 function initOpeningOffer() {
-  const local = localStorage.getItem(STORAGE_KEYS.OFFER);
+  // Try local cache for instant display
+  const cached = localStorage.getItem(STORAGE_KEYS.OFFER);
   let offer = null;
-  if (local) {
-    try { offer = JSON.parse(local); } catch {}
+  if (cached) {
+    try { offer = JSON.parse(cached); } catch { /* ignore */ }
   }
 
   if (!offer) {
@@ -384,6 +404,7 @@ function initOpeningOffer() {
   }
 
   applyOfferData(offer);
+  // Firestore's onSnapshot (in index.html) will call darUpdateOffer when data arrives
 }
 
 function applyOfferData(offer) {
@@ -598,6 +619,9 @@ function getOrderPayload() {
   };
 }
 
+/**
+ * Save order locally to localStorage as a cache backup.
+ */
 function saveOrderLocally(orderData) {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.ORDERS);
@@ -618,12 +642,14 @@ if (btnSubmitWhatsApp) {
     }
 
     const order = getOrderPayload();
-    saveOrderLocally(order);
 
-    // Save to Firestore if available
+    // Save to Firestore (PRIMARY) via hook provided by index.html Firebase block
     if (window.darSaveOrderToFirestore) {
       window.darSaveOrderToFirestore(order);
     }
+
+    // Also save locally as backup cache
+    saveOrderLocally(order);
 
     const waMsg = `📦 *طلب جديد من موقع Dar Elsalam Store*
 ----------------------------------
@@ -652,11 +678,14 @@ if (orderForm) {
     }
 
     const order = getOrderPayload();
-    saveOrderLocally(order);
 
+    // Save to Firestore (PRIMARY)
     if (window.darSaveOrderToFirestore) {
       window.darSaveOrderToFirestore(order);
     }
+
+    // Cache locally as backup
+    saveOrderLocally(order);
 
     showToast("✓ تم تسجيل طلبك بنجاح! سيتواصل معك فريق المتجر قريباً.");
     orderForm.reset();
@@ -720,28 +749,48 @@ function showToast(message) {
 
 function escapeHTML(str) {
   if (!str) return '';
-  return String(str).replace(/[&<>'"]/g, 
+  return String(str).replace(/[&<>'"]/g,
     tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
   );
 }
 
-// Global hooks for external synchronization (e.g. Firebase Firestore)
+/* ==========================================================================
+   7. GLOBAL FIRESTORE HOOKS
+   Called by the Firestore onSnapshot listeners defined in index.html
+   ========================================================================== */
+
+/**
+ * Called by Firestore onSnapshot when products collection changes.
+ * Updates storeProducts and re-renders the catalog.
+ */
 window.darUpdateProductsCatalog = function(products) {
   if (Array.isArray(products) && products.length > 0) {
     storeProducts = products;
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    // Cache locally for offline fallback
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    } catch { /* ignore quota errors */ }
     renderProducts();
   }
 };
 
+/**
+ * Called by Firestore onSnapshot when offer document changes.
+ * Updates the offer banner and countdown.
+ */
 window.darUpdateOffer = function(offer) {
   if (offer && typeof offer === 'object') {
-    localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offer));
+    // Cache locally for offline fallback
+    try {
+      localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offer));
+    } catch { /* ignore quota errors */ }
     applyOfferData(offer);
   }
 };
 
-// Initial boot
+/* ==========================================================================
+   8. INITIAL BOOT
+   ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   initProducts();
   initOpeningOffer();

@@ -1,7 +1,8 @@
 /**
  * ==========================================================================
  * DAR ELSALAM STORE - Admin Dashboard Logic (Pure Vanilla JavaScript)
- * Synchronizes with localStorage and provides complete catalog management.
+ * Firebase Firestore is the PRIMARY data store.
+ * localStorage is used only as a cache / offline fallback.
  * ==========================================================================
  */
 
@@ -16,7 +17,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_PIN = "1234";
 
-// Initial sample data if reset is triggered
+// Initial sample data used only when Firestore is empty
 const DEFAULT_PRODUCTS = [
   {
     id: 1,
@@ -211,36 +212,50 @@ const fileNameDisplay = document.getElementById('fileNameDisplay');
 const modalEditorTitle = document.getElementById('modalEditorTitle');
 
 /**
- * Load products from localStorage
+ * Load products – prefers Firestore via the hook provided by admin.html.
+ * Falls back to localStorage cache, then DEFAULT_PRODUCTS.
  */
 function loadProducts() {
+  // Try loading from Firestore hook (set by admin.html onSnapshot)
+  // The hook updates productsList and re-renders when data arrives.
+  // For immediate display, try localStorage cache first.
   const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-  if (!raw) {
-    productsList = [...DEFAULT_PRODUCTS];
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(productsList));
-  } else {
+  if (raw) {
     try {
-      productsList = JSON.parse(raw);
-    } catch {
-      productsList = [...DEFAULT_PRODUCTS];
-    }
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        productsList = parsed;
+      }
+    } catch { /* ignore */ }
   }
+
+  if (productsList.length === 0) {
+    productsList = [...DEFAULT_PRODUCTS];
+  }
+
   renderProductsTable();
+  // Firestore onSnapshot in admin.html will call darAdminUpdateProducts when real data arrives
 }
 
 /**
- * Save products to localStorage
+ * Save all products to Firestore (PRIMARY) and cache to localStorage.
  */
-function saveProducts() {
-  localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(productsList));
-  renderProductsTable();
+async function saveProducts() {
+  // Update localStorage cache immediately
+  try {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(productsList));
+  } catch { /* ignore */ }
+
+  // Sync to Firestore via hook provided by admin.html
   if (window.darSyncProductsToFirestore) {
-    window.darSyncProductsToFirestore(productsList);
+    await window.darSyncProductsToFirestore(productsList);
   }
+
+  renderProductsTable();
 }
 
 /**
- * Render products table
+ * Render products table in admin dashboard
  */
 function renderProductsTable() {
   const selectedCat = filterAdminCategory.value;
@@ -322,7 +337,7 @@ window.openEditModal = function(id) {
 };
 
 /**
- * Delete Product
+ * Delete Product – removes from Firestore and local cache
  */
 window.deleteProduct = function(id) {
   const p = productsList.find(item => item.id === id);
@@ -330,10 +345,18 @@ window.deleteProduct = function(id) {
 
   if (confirm(`هل أنت متأكد من حذف المنتج:\n"${p.name}"؟`)) {
     productsList = productsList.filter(item => item.id !== id);
-    saveProducts();
+
+    // Delete from Firestore (PRIMARY) via hook from admin.html
     if (window.darDeleteProductFromFirestore) {
       window.darDeleteProductFromFirestore(id);
     }
+
+    // Update localStorage cache
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(productsList));
+    } catch { /* ignore */ }
+
+    renderProductsTable();
     alert('تم حذف المنتج بنجاح.');
   }
 };
@@ -361,9 +384,9 @@ prodImageFileInput.addEventListener('change', (e) => {
 });
 
 /**
- * Submit Product Form (Add or Update)
+ * Submit Product Form (Add or Update) – saves to Firestore as primary
  */
-productForm.addEventListener('submit', (e) => {
+productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const id = editProductId.value ? parseInt(editProductId.value, 10) : null;
@@ -416,7 +439,8 @@ productForm.addEventListener('submit', (e) => {
     productsList.unshift(newProduct);
   }
 
-  saveProducts();
+  // Save to Firestore (PRIMARY) + localStorage cache
+  await saveProducts();
   closeEditorModal();
   alert('تم حفظ المنتج بنجاح!');
 });
@@ -440,6 +464,10 @@ const offerDiscountBadgeInput = document.getElementById('offerDiscountBadgeInput
 const offerExpiryInput = document.getElementById('offerExpiryInput');
 const offerImageInput = document.getElementById('offerImageInput');
 
+/**
+ * Load offer form data – prefers Firestore via onSnapshot hook in admin.html.
+ * Falls back to localStorage cache, then built-in default.
+ */
 function loadOfferForm() {
   const raw = localStorage.getItem(STORAGE_KEYS.OFFER);
   let offer = null;
@@ -478,7 +506,10 @@ function loadOfferForm() {
   }
 }
 
-offerConfigForm.addEventListener('submit', (e) => {
+/**
+ * Submit offer form – saves to Firestore (PRIMARY) via hook in admin.html
+ */
+offerConfigForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const expiryVal = offerExpiryInput.value;
@@ -495,11 +526,17 @@ offerConfigForm.addEventListener('submit', (e) => {
     expiresAt: expiryDate
   };
 
-  localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offerData));
+  // Save to Firestore (PRIMARY) via hook provided by admin.html
   if (window.darSyncOfferToFirestore) {
-    window.darSyncOfferToFirestore(offerData);
+    await window.darSyncOfferToFirestore(offerData);
   }
-  alert('تم تحديث إعدادات عرض الافتتاح بنجاح! التغييرات ستظهر فوراً في واجهة المتجر.');
+
+  // Cache locally as backup
+  try {
+    localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offerData));
+  } catch { /* ignore */ }
+
+  alert('تم تحديث إعدادات عرض الافتتاح بنجاح! التغييرات ستظهر فوراً في واجهة المتجر لجميع الزوار.');
 });
 
 /* ==========================================================================
@@ -508,6 +545,9 @@ offerConfigForm.addEventListener('submit', (e) => {
 const ordersTableBody = document.getElementById('ordersTableBody');
 const btnClearOrders = document.getElementById('btnClearOrders');
 
+/**
+ * Load orders from localStorage cache (updated in real-time by Firestore onSnapshot in admin.html)
+ */
 function loadOrdersTable() {
   const raw = localStorage.getItem(STORAGE_KEYS.ORDERS);
   let orders = [];
@@ -540,7 +580,7 @@ function loadOrdersTable() {
 }
 
 btnClearOrders.addEventListener('click', () => {
-  if (confirm('هل تريد مسح سجل الطلبات المسجلة محلياً؟')) {
+  if (confirm('هل تريد مسح سجل الطلبات المحلي؟ ملاحظة: لن يؤثر ذلك على البيانات المحفوظة في Firestore.')) {
     localStorage.removeItem(STORAGE_KEYS.ORDERS);
     loadOrdersTable();
   }
@@ -564,12 +604,41 @@ btnSavePin.addEventListener('click', () => {
   newPinInput.value = '';
 });
 
-btnResetDefaults.addEventListener('click', () => {
-  if (confirm('تنبيه: سيتم مسح كافة التعديلات واستعادة المنتجات الافتراضية وعرض الافتتاح الأصلي. هل تريد المتابعة؟')) {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
-    localStorage.removeItem(STORAGE_KEYS.OFFER);
-    loadProducts();
-    alert('تمت استعادة البيانات الافتراضية بنجاح!');
+btnResetDefaults.addEventListener('click', async () => {
+  if (confirm('تنبيه: سيتم مسح كافة التعديلات في Firestore واستعادة المنتجات الافتراضية وعرض الافتتاح الأصلي. هل تريد المتابعة؟')) {
+    productsList = [...DEFAULT_PRODUCTS];
+
+    // Sync default products to Firestore
+    if (window.darSyncProductsToFirestore) {
+      await window.darSyncProductsToFirestore(productsList);
+    }
+
+    // Clear offer from Firestore
+    const defaultOfferEnd = new Date();
+    defaultOfferEnd.setDate(defaultOfferEnd.getDate() + 5);
+    const defaultOffer = {
+      enabled: true,
+      title: "باقة الافتتاح الكبرى: ساعة ذكية Ultra + AirPods Pro + شاحن 65W",
+      description: "احصل على أقوى مجموعة تكنولوجية متكاملة بسعر الافتتاح الاستثنائي! وفر أكثر من 35% مع ضمان حقيقي وشحن فوري لجميع المحافظات.",
+      newPrice: "1250",
+      oldPrice: "1950",
+      discountBadge: "وفر 700 ج.م (36%-)",
+      image: "images/offers/launch-offer.svg",
+      expiresAt: defaultOfferEnd.toISOString()
+    };
+
+    if (window.darSyncOfferToFirestore) {
+      await window.darSyncOfferToFirestore(defaultOffer);
+    }
+
+    // Update localStorage cache
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(productsList));
+      localStorage.removeItem(STORAGE_KEYS.OFFER);
+    } catch { /* ignore */ }
+
+    renderProductsTable();
+    alert('تمت استعادة البيانات الافتراضية بنجاح في Firestore!');
   }
 });
 
@@ -578,14 +647,35 @@ btnResetDefaults.addEventListener('click', () => {
    ========================================================================== */
 function escapeHTML(str) {
   if (!str) return '';
-  return str.replace(/[&<>'"]/g, 
+  return str.replace(/[&<>'"]/g,
     tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
   );
 }
 
+/* ==========================================================================
+   8. GLOBAL HOOKS (Called by admin.html Firestore listeners)
+   ========================================================================== */
+
+/**
+ * Called by admin.html Firestore onSnapshot when products change remotely.
+ * Updates productsList and re-renders the admin table.
+ */
+window.darAdminUpdateProducts = function(products) {
+  if (Array.isArray(products)) {
+    productsList = products;
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    } catch { /* ignore */ }
+    renderProductsTable();
+  }
+};
+
+// Expose loadOrdersTable globally so admin.html can call it after Firestore sync
 window.loadOrdersTable = loadOrdersTable;
 
-// Initial setup
+/* ==========================================================================
+   9. INITIAL SETUP
+   ========================================================================== */
 function initDashboard() {
   loadProducts();
 }

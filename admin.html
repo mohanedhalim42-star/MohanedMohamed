@@ -421,18 +421,47 @@
         }
       };
 
+      // Realtime listener for products (keeps admin table in sync across devices)
+      onSnapshot(collection(db, "products"), (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteProducts = [];
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            remoteProducts.push({
+              id: data.id || docSnap.id,
+              name: data.name || '',
+              category: data.category || 'إلكترونيات',
+              image: data.image || 'images/products/phone-repair.svg',
+              price: data.price || '0',
+              oldPrice: data.oldPrice || '',
+              description: data.description || '',
+              features: Array.isArray(data.features) ? data.features : [],
+              available: data.available !== false
+            });
+          });
+          remoteProducts.sort((a, b) => (b.id > a.id ? 1 : -1));
+          try {
+            localStorage.setItem("dar_elsalam_products_v1", JSON.stringify(remoteProducts));
+          } catch { /* ignore */ }
+          // Update admin products list and re-render table
+          if (typeof window.darAdminUpdateProducts === 'function') {
+            window.darAdminUpdateProducts(remoteProducts);
+          }
+        }
+      }, (err) => console.warn("Admin products sync error:", err));
+
       // Realtime listener for incoming orders
       onSnapshot(collection(db, "orders"), (snapshot) => {
-        if (!snapshot.empty) {
-          const remoteOrders = [];
-          snapshot.forEach(docSnap => {
-            remoteOrders.push(docSnap.data());
-          });
-          remoteOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        const remoteOrders = [];
+        snapshot.forEach(docSnap => {
+          remoteOrders.push(docSnap.data());
+        });
+        remoteOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        try {
           localStorage.setItem("dar_elsalam_orders_v1", JSON.stringify(remoteOrders));
-          if (typeof window.loadOrdersTable === 'function') {
-            window.loadOrdersTable();
-          }
+        } catch { /* ignore */ }
+        if (typeof window.loadOrdersTable === 'function') {
+          window.loadOrdersTable();
         }
       }, (err) => console.warn("Orders sync error:", err));
 
