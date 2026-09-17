@@ -24,7 +24,9 @@
   --radius-lg: 20px;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -39,7 +41,7 @@ html {
 body {
   font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--admin-bg);
-  background-image: 
+  background-image:
     radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.04) 0%, transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 40%);
   color: var(--text-main);
@@ -52,7 +54,10 @@ a {
   text-decoration: none;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -276,7 +281,8 @@ button, input, select, textarea {
   text-align: right;
 }
 
-.admin-table th, .admin-table td {
+.admin-table th,
+.admin-table td {
   padding: 14px 16px;
   border-bottom: 1px solid var(--admin-border);
   font-size: 0.95rem;
@@ -460,15 +466,18 @@ textarea.form-control {
   .admin-wrapper {
     flex-direction: column;
   }
+
   .admin-sidebar {
     width: 100%;
     border-left: none;
     border-bottom: 1px solid var(--admin-border);
     padding: 20px;
   }
+
   .admin-main {
     padding: 24px 16px;
   }
+
   .form-grid {
     grid-template-columns: 1fr;
   }

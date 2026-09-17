@@ -1,45 +1,30 @@
 /**
  * ==========================================================================
- * DAR ELSALAM STORE - Official Application Script (Pure Vanilla JavaScript)
- * Fully responsive Arabic E-Commerce Platform
+ * DAR ELSALAM STORE - Official Frontend Logic (Pure Vanilla JavaScript)
+ * Interactive Catalog, Live Search, Countdown Timer & WhatsApp Ordering
  * ==========================================================================
  */
 
 'use strict';
 
-/* ==========================================================================
-   1. STORE CENTRAL CONFIGURATION
-   All main shop information, phone numbers, and social links can easily be
-   updated right here in this single configuration object.
-   ========================================================================== */
 const STORE_CONFIG = {
   name: "Dar Elsalam Store",
   phone: "01008991290",
-  whatsappNumber: "201008991290", // Egypt format (+20)
-  email: "darelsalam.store.eg@gmail.com",
-  address: "الإسكندرية، جمهورية مصر العربية",
-  socialLinks: {
-    facebook: "https://www.facebook.com/share/1CyNiEFztG/",
-    tiktok: "https://www.tiktok.com/@dar.elsalam.store",
-    instagram: "https://www.instagram.com/darre_lsalamstore?utm_source=qr&stkn=aDl4OXQ3eTl4a20=",
-    whatsapp: "https://wa.me/201008991290"
-  },
-  
-  // Storage Keys for Browser LocalStorage
-  STORAGE_KEYS: {
-    PRODUCTS: "dar_elsalam_products_v1",
-    OFFER: "dar_elsalam_offer_v1",
-    ORDERS: "dar_elsalam_orders_v1"
-  },
-
-  // Fallback Hero Image
-  fallbackImage: "images/logo.jpg"
+  whatsappNumber: "201008991290",
+  siteUrl: "https://dar-elsalam-store.firebaseapp.com",
+  developer: {
+    name: "Eng/ Mohaned Halim",
+    phone: "01220702077",
+    whatsapp: "https://wa.me/201220702077"
+  }
 };
 
-/* ==========================================================================
-   2. INITIAL DEFAULT CATALOG & PROMOTIONS
-   These will automatically populate localStorage on the first visit.
-   ========================================================================== */
+const STORAGE_KEYS = {
+  PRODUCTS: "dar_elsalam_products_v1",
+  OFFER: "dar_elsalam_offer_v1",
+  ORDERS: "dar_elsalam_orders_v1"
+};
+
 const DEFAULT_PRODUCTS = [
   {
     id: 1,
@@ -139,762 +124,625 @@ const DEFAULT_PRODUCTS = [
   }
 ];
 
-// Default Opening Offer Configuration
-// Calculates a target expiry date 7 days from user's current session if not already stored
-const getDefaultTargetExpiry = () => {
-  const target = new Date();
-  target.setDate(target.getDate() + 5);
-  target.setHours(23, 59, 59, 0);
-  return target.toISOString();
-};
-
-const DEFAULT_OFFER = {
-  enabled: true,
-  title: "باقة الافتتاح الكبرى: ساعة ذكية Ultra + AirPods Pro + شاحن 65W",
-  description: "احصل على أقوى مجموعة تكنولوجية متكاملة بسعر الافتتاح الاستثنائي! وفر أكثر من 35% مع ضمان حقيقي وشحن فوري لجميع المحافظات.",
-  image: "images/offers/launch-offer.svg",
-  newPrice: "1250",
-  oldPrice: "1950",
-  discountBadge: "وفر 700 ج.م (36%-)",
-  expiresAt: getDefaultTargetExpiry()
-};
-
-/* ==========================================================================
-   3. DATA PERSISTENCE & LOCALSTORAGE HELPERS
-   ========================================================================== */
-
-/**
- * Retrieve all products from localStorage or initialize defaults
- */
-function getStoredProducts() {
-  try {
-    const raw = localStorage.getItem(STORE_CONFIG.STORAGE_KEYS.PRODUCTS);
-    if (!raw) {
-      localStorage.setItem(STORE_CONFIG.STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
-      return DEFAULT_PRODUCTS;
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_PRODUCTS;
-  } catch (err) {
-    console.error("Failed to read products from localStorage:", err);
-    return DEFAULT_PRODUCTS;
-  }
-}
-
-/**
- * Save products array to localStorage
- */
-function saveStoredProducts(products) {
-  try {
-    localStorage.setItem(STORE_CONFIG.STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-  } catch (err) {
-    console.error("Failed to save products to localStorage:", err);
-  }
-}
-
-/**
- * Retrieve current opening offer configuration
- */
-function getStoredOffer() {
-  try {
-    const raw = localStorage.getItem(STORE_CONFIG.STORAGE_KEYS.OFFER);
-    if (!raw) {
-      localStorage.setItem(STORE_CONFIG.STORAGE_KEYS.OFFER, JSON.stringify(DEFAULT_OFFER));
-      return DEFAULT_OFFER;
-    }
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("Failed to read offer from localStorage:", err);
-    return DEFAULT_OFFER;
-  }
-}
-
-/**
- * Save orders locally (backend integration placeholder)
- */
-function saveCustomerOrder(orderData) {
-  try {
-    const raw = localStorage.getItem(STORE_CONFIG.STORAGE_KEYS.ORDERS) || "[]";
-    const orders = JSON.parse(raw);
-    orders.unshift({
-      ...orderData,
-      id: "ORD-" + Date.now(),
-      createdAt: new Date().toISOString()
-    });
-    localStorage.setItem(STORE_CONFIG.STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-  } catch (err) {
-    console.error("Failed to record order locally:", err);
-  }
-}
-
-/* ==========================================================================
-   4. DOM ELEMENTS CACHE
-   ========================================================================== */
-const DOM = {
-  header: document.getElementById('siteHeader'),
-  hamburgerBtn: document.getElementById('hamburgerBtn'),
-  closeDrawerBtn: document.getElementById('closeDrawerBtn'),
-  mobileDrawer: document.getElementById('mobileNavDrawer'),
-  mobileOverlay: document.getElementById('mobileNavOverlay'),
-  mobileNavLinks: document.querySelectorAll('.mobile-nav-link'),
-  
-  productsGrid: document.getElementById('productsGrid'),
-  searchInput: document.getElementById('productSearchInput'),
-  categoryPills: document.querySelectorAll('.filter-pill'),
-  emptyState: document.getElementById('emptyStateContainer'),
-  resetFiltersBtn: document.getElementById('resetFiltersBtn'),
-
-  // Modal elements
-  productModal: document.getElementById('productModal'),
-  modalCloseBtn: document.getElementById('modalCloseBtn'),
-  modalImg: document.getElementById('modalProductImg'),
-  modalCategory: document.getElementById('modalProductCategory'),
-  modalTitle: document.getElementById('modalProductName'),
-  modalPrice: document.getElementById('modalProductPrice'),
-  modalOldPrice: document.getElementById('modalProductOldPrice'),
-  modalStock: document.getElementById('modalProductStock'),
-  modalDesc: document.getElementById('modalProductDescription'),
-  modalFeatures: document.getElementById('modalProductFeatures'),
-  modalOrderWhatsAppBtn: document.getElementById('modalOrderWhatsAppBtn'),
-  modalFillFormBtn: document.getElementById('modalFillFormBtn'),
-
-  // Offers elements
-  offerCard: document.getElementById('openingOfferCard'),
-  offerBannerImg: document.getElementById('offerBannerImg'),
-  offerTitleText: document.getElementById('offerTitleText'),
-  offerDescText: document.getElementById('offerDescriptionText'),
-  offerNewPriceText: document.getElementById('offerNewPriceText'),
-  offerOldPriceText: document.getElementById('offerOldPriceText'),
-  offerDiscountText: document.getElementById('offerDiscountText'),
-  timerDays: document.getElementById('timerDays'),
-  timerHours: document.getElementById('timerHours'),
-  timerMinutes: document.getElementById('timerMinutes'),
-  timerSeconds: document.getElementById('timerSeconds'),
-  offerExpiredNotice: document.getElementById('offerExpiredNotice'),
-  btnOfferOrder: document.getElementById('btnOfferOrder'),
-
-  // Shipping Order Form
-  orderForm: document.getElementById('orderForm'),
-  inputFullName: document.getElementById('orderFullName'),
-  inputPhone: document.getElementById('orderPhone'),
-  inputEmail: document.getElementById('orderEmail'),
-  inputQuantity: document.getElementById('orderQuantity'),
-  inputProduct: document.getElementById('orderProduct'),
-  selectGov: document.getElementById('orderGovernorate'),
-  inputAddress: document.getElementById('orderAddress'),
-  inputNotes: document.getElementById('orderNotes'),
-  btnSubmitWhatsApp: document.getElementById('btnSubmitWhatsApp'),
-
-  // Floating & UI
-  scrollTopBtn: document.getElementById('scrollTopBtn'),
-  toastContainer: document.getElementById('toastContainer'),
-  currentYearSpan: document.getElementById('currentYear')
-};
-
-/* ==========================================================================
-   5. UI STATE & FILTERING
-   ========================================================================== */
-let allProducts = [];
-let activeCategory = "all";
-let searchQuery = "";
+// App State
+let storeProducts = [];
+let currentCategory = 'all';
+let searchQuery = '';
 let countdownInterval = null;
-let currentSelectedProduct = null;
 
 /* ==========================================================================
-   6. DYNAMIC CATALOG RENDERING
+   DOM ELEMENTS
    ========================================================================== */
+const productsGrid = document.getElementById('productsGrid');
+const emptyStateContainer = document.getElementById('emptyStateContainer');
+const productSearchInput = document.getElementById('productSearchInput');
+const categoryPillList = document.getElementById('categoryPillList');
+const resetFiltersBtn = document.getElementById('resetFiltersBtn');
 
-/**
- * Filter and render products in the catalog grid
- */
-function renderCatalog() {
-  if (!DOM.productsGrid) return;
+// Modals
+const productModal = document.getElementById('productModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const modalProductImg = document.getElementById('modalProductImg');
+const modalProductCategory = document.getElementById('modalProductCategory');
+const modalProductName = document.getElementById('modalProductName');
+const modalProductPrice = document.getElementById('modalProductPrice');
+const modalProductOldPrice = document.getElementById('modalProductOldPrice');
+const modalProductDescription = document.getElementById('modalProductDescription');
+const modalProductFeatures = document.getElementById('modalProductFeatures');
+const modalOrderWhatsAppBtn = document.getElementById('modalOrderWhatsAppBtn');
+const modalFillFormBtn = document.getElementById('modalFillFormBtn');
 
-  // Filter products based on search term & active category
-  const filtered = allProducts.filter(item => {
-    const matchesCategory = activeCategory === "all" || item.category === activeCategory;
+// QR Modal & Triggers
+const qrModal = document.getElementById('qrModal');
+const qrModalCloseBtn = document.getElementById('qrModalCloseBtn');
+const openQrBtn = document.getElementById('openQrBtn');
+const openQrBtnHeader = document.getElementById('openQrBtnHeader');
+const navQrDropdown = document.getElementById('navQrDropdown');
+const btnCopyDropdown = document.getElementById('btnCopyDropdown');
+const btnCopyMobileQr = document.getElementById('btnCopyMobileQr');
+const btnCopySiteUrl = document.getElementById('btnCopySiteUrl');
+const btnShareQrWhatsApp = document.getElementById('btnShareQrWhatsApp');
+
+// Navigation Drawer
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+const mobileNavDrawer = document.getElementById('mobileNavDrawer');
+const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+// Floating & Utilities
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+const toastContainer = document.getElementById('toastContainer');
+const currentYearSpan = document.getElementById('currentYear');
+
+// Order Form
+const orderForm = document.getElementById('orderForm');
+const orderFullName = document.getElementById('orderFullName');
+const orderPhone = document.getElementById('orderPhone');
+const orderProduct = document.getElementById('orderProduct');
+const orderQuantity = document.getElementById('orderQuantity');
+const orderGovernorate = document.getElementById('orderGovernorate');
+const orderAddress = document.getElementById('orderAddress');
+const orderNotes = document.getElementById('orderNotes');
+const btnSubmitWhatsApp = document.getElementById('btnSubmitWhatsApp');
+
+// Offers Elements
+const openingOfferCard = document.getElementById('openingOfferCard');
+const offerBannerImg = document.getElementById('offerBannerImg');
+const offerTitleText = document.getElementById('offerTitleText');
+const offerDescriptionText = document.getElementById('offerDescriptionText');
+const offerNewPriceText = document.getElementById('offerNewPriceText');
+const offerOldPriceText = document.getElementById('offerOldPriceText');
+const offerDiscountText = document.getElementById('offerDiscountText');
+const countdownArea = document.getElementById('countdownArea');
+const offerExpiredNotice = document.getElementById('offerExpiredNotice');
+const timerDays = document.getElementById('timerDays');
+const timerHours = document.getElementById('timerHours');
+const timerMinutes = document.getElementById('timerMinutes');
+const timerSeconds = document.getElementById('timerSeconds');
+const btnOfferOrder = document.getElementById('btnOfferOrder');
+
+/* ==========================================================================
+   1. PRODUCTS CATALOG & FILTERING
+   ========================================================================== */
+function initProducts() {
+  const local = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+  if (local) {
+    try {
+      storeProducts = JSON.parse(local);
+    } catch {
+      storeProducts = [...DEFAULT_PRODUCTS];
+    }
+  } else {
+    storeProducts = [...DEFAULT_PRODUCTS];
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(storeProducts));
+  }
+  renderProducts();
+}
+
+function renderProducts() {
+  if (!productsGrid) return;
+
+  const filtered = storeProducts.filter(item => {
+    const matchCat = (currentCategory === 'all' || item.category === currentCategory);
     const q = searchQuery.trim().toLowerCase();
-    const matchesSearch = !q || 
-      item.name.toLowerCase().includes(q) || 
+    const matchSearch = !q || 
+      (item.name && item.name.toLowerCase().includes(q)) || 
       (item.description && item.description.toLowerCase().includes(q)) ||
       (item.category && item.category.toLowerCase().includes(q));
-    return matchesCategory && matchesSearch;
+    return matchCat && matchSearch;
   });
 
-  // Handle empty state
   if (filtered.length === 0) {
-    DOM.productsGrid.innerHTML = "";
-    DOM.emptyState.style.display = "block";
+    productsGrid.style.display = 'none';
+    if (emptyStateContainer) emptyStateContainer.style.display = 'block';
     return;
   }
 
-  DOM.emptyState.style.display = "none";
+  productsGrid.style.display = 'grid';
+  if (emptyStateContainer) emptyStateContainer.style.display = 'none';
 
-  // Build cards HTML
-  const cardsHtml = filtered.map(product => {
-    const isAvailable = product.available !== false;
-    const hasDiscount = product.oldPrice && parseFloat(product.oldPrice) > parseFloat(product.price);
-    const discountPercent = hasDiscount 
-      ? Math.round(((parseFloat(product.oldPrice) - parseFloat(product.price)) / parseFloat(product.oldPrice)) * 100) 
-      : 0;
-
-    return `
-      <article class="product-card" data-id="${product.id}">
-        <div class="product-thumb-wrap">
-          <img 
-            src="${product.image || STORE_CONFIG.fallbackImage}" 
-            alt="${product.name}" 
-            class="product-thumb" 
-            loading="lazy"
-            onerror="this.onerror=null; this.src='images/products/phone-repair.svg';"
-          >
-          <div class="product-badges">
-            ${hasDiscount ? `<span class="badge-discount">خصم ${discountPercent}%-</span>` : `<span></span>`}
-            <span class="badge-stock ${isAvailable ? 'in-stock' : 'out-of-stock'}">
-              ${isAvailable ? 'متوفر' : 'نفد مؤقتاً'}
-            </span>
-          </div>
+  productsGrid.innerHTML = filtered.map(item => `
+    <article class="product-card" data-id="${item.id}">
+      <span class="product-badge">${escapeHTML(item.category)}</span>
+      <div class="product-img-wrap">
+        <img src="${escapeHTML(item.image || 'images/products/phone-repair.svg')}" alt="${escapeHTML(item.name)}" class="product-img" loading="lazy">
+      </div>
+      <div class="product-info">
+        <span class="product-category-tag">${escapeHTML(item.category)}</span>
+        <h3 class="product-title">${escapeHTML(item.name)}</h3>
+        <div class="product-price-row">
+          <span class="product-price">${escapeHTML(String(item.price))} ج.م</span>
+          ${item.oldPrice ? `<span class="product-old-price">${escapeHTML(String(item.oldPrice))} ج.م</span>` : ''}
         </div>
-
-        <div class="product-content">
-          <span class="product-category-tag">${product.category || 'إلكترونيات'}</span>
-          <h3 class="product-name">${escapeHTML(product.name)}</h3>
-          <p class="product-short-desc">${escapeHTML(product.description || '')}</p>
-
-          <div class="product-price-box">
-            ${product.price ? `
-              <span class="current-price">${product.price} <small>ج.م</small></span>
-            ` : `<span class="current-price" style="font-size: 1.05rem;">تواصل للسعر</span>`}
-            
-            ${hasDiscount ? `
-              <span class="old-price">${product.oldPrice} ج.م</span>
-            ` : ''}
-          </div>
-
-          <div class="product-actions">
-            <button type="button" class="btn-details" onclick="openProductModal(${product.id})">
-              عرض التفاصيل
-            </button>
-            <button 
-              type="button" 
-              class="btn-quick-order" 
-              onclick="orderViaWhatsAppDirect(${product.id})" 
-              title="طلب سريع عبر واتساب"
-              aria-label="طلب عبر واتساب"
-            >
-              💬
-            </button>
-          </div>
+        <div class="product-actions">
+          <button type="button" class="btn-product-details" onclick="window.darOpenProductModal(${item.id})">
+            عرض التفاصيل
+          </button>
+          <a href="https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(`مرحباً Dar Elsalam Store، أستفسر عن توفر منتج: ${item.name} (السعر: ${item.price} ج.م)`)}" 
+             target="_blank" rel="noopener noreferrer" class="btn-product-whatsapp" title="طلب مباشر عبر واتساب">
+            💬
+          </a>
         </div>
-      </article>
-    `;
-  }).join('');
-
-  DOM.productsGrid.innerHTML = cardsHtml;
+      </div>
+    </article>
+  `).join('');
 }
 
-/**
- * Sanitize string to prevent basic XSS
- */
-function escapeHTML(str) {
-  if (!str) return '';
-  return str.replace(/[&<>'"]/g, 
-    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-  );
-}
+// Global hook for modal opener
+window.darOpenProductModal = function(productId) {
+  const product = storeProducts.find(p => p.id === productId);
+  if (!product || !productModal) return;
 
-/* ==========================================================================
-   7. PRODUCT DETAILS MODAL LOGIC
-   ========================================================================== */
+  modalProductImg.src = product.image || 'images/products/phone-repair.svg';
+  modalProductImg.alt = product.name;
+  modalProductCategory.textContent = product.category;
+  modalProductName.textContent = product.name;
+  modalProductPrice.textContent = `${product.price} ج.م`;
+  modalProductOldPrice.textContent = product.oldPrice ? `${product.oldPrice} ج.م` : '';
+  modalProductDescription.textContent = product.description || '';
 
-/**
- * Open modal for a specific product
- */
-window.openProductModal = function(productId) {
-  const product = allProducts.find(p => p.id === productId);
-  if (!product) return;
-
-  currentSelectedProduct = product;
-
-  DOM.modalImg.src = product.image || STORE_CONFIG.fallbackImage;
-  DOM.modalImg.alt = product.name;
-  DOM.modalCategory.textContent = product.category || 'منتج إلكتروني';
-  DOM.modalTitle.textContent = product.name;
-  
-  if (product.price) {
-    DOM.modalPrice.innerHTML = `${product.price} <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small>`;
-  } else {
-    DOM.modalPrice.textContent = 'تواصل للاستفسار';
+  if (modalProductFeatures) {
+    if (product.features && product.features.length) {
+      modalProductFeatures.innerHTML = product.features.map(f => `<li>${escapeHTML(f)}</li>`).join('');
+    } else {
+      modalProductFeatures.innerHTML = `<li>ضمان المتجر الرسمي المعتمد</li><li>فحص وتجربة قبل الاستلام</li>`;
+    }
   }
 
-  if (product.oldPrice && parseFloat(product.oldPrice) > parseFloat(product.price)) {
-    DOM.modalOldPrice.textContent = `${product.oldPrice} ج.م`;
-    DOM.modalOldPrice.style.display = 'inline';
-  } else {
-    DOM.modalOldPrice.style.display = 'none';
+  // WhatsApp Order from Modal
+  if (modalOrderWhatsAppBtn) {
+    modalOrderWhatsAppBtn.onclick = () => {
+      const msg = `مرحباً Dar Elsalam Store، أود طلب وشراء المنتج التالي:\n- اسم المنتج: ${product.name}\n- السعر: ${product.price} ج.م\n- الرابط: ${window.location.href}`;
+      window.open(`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
   }
 
-  const isAvailable = product.available !== false;
-  DOM.modalStock.className = `badge-stock ${isAvailable ? 'in-stock' : 'out-of-stock'}`;
-  DOM.modalStock.textContent = isAvailable ? 'متوفر وجاهز للتسليم والشحن' : 'غير متوفر حالياً';
-
-  DOM.modalDesc.textContent = product.description || 'لا يوجد وصف إضافي.';
-
-  // Populate features list
-  if (Array.isArray(product.features) && product.features.length > 0) {
-    DOM.modalFeatures.innerHTML = product.features.map(f => `<li>${escapeHTML(f)}</li>`).join('');
-  } else {
-    DOM.modalFeatures.innerHTML = `
-      <li>منتج أصلي خاضع للفحص المباشر</li>
-      <li>ضمان معتمد من متجر Dar Elsalam Store</li>
-      <li>إمكانية المعاينة قبل الاستلام</li>
-    `;
+  // Quick fill form
+  if (modalFillFormBtn) {
+    modalFillFormBtn.onclick = () => {
+      closeProductModal();
+      if (orderProduct) {
+        orderProduct.value = product.name;
+      }
+      const shippingSection = document.getElementById('shipping');
+      if (shippingSection) {
+        shippingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
   }
 
-  DOM.productModal.classList.add('open');
-  DOM.productModal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  productModal.classList.add('open');
 };
 
-/**
- * Close modal
- */
 function closeProductModal() {
-  if (!DOM.productModal) return;
-  DOM.productModal.classList.remove('open');
-  DOM.productModal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-  currentSelectedProduct = null;
+  if (productModal) productModal.classList.remove('open');
 }
 
-/**
- * Direct WhatsApp button from inside modal
- */
-function handleModalWhatsAppOrder() {
-  if (!currentSelectedProduct) return;
-  const message = `مرحباً Dar Elsalam Store 👋\nأود الاستفسار وطلب هذا المنتج:\n- الاسم: ${currentSelectedProduct.name}\n- السعر: ${currentSelectedProduct.price ? currentSelectedProduct.price + ' ج.م' : 'استفسار'}\n- التصنيف: ${currentSelectedProduct.category}\nهل هو متوفر حالياً لتأكيد الشحن؟`;
-  const url = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
+if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeProductModal);
+if (productModal) {
+  productModal.addEventListener('click', (e) => {
+    if (e.target === productModal) closeProductModal();
+  });
 }
 
-/**
- * Quick fill into shipping form from inside modal
- */
-function handleModalFillShippingForm() {
-  if (!currentSelectedProduct) return;
-  closeProductModal();
-  DOM.inputProduct.value = currentSelectedProduct.name;
-  
-  // Smooth scroll to shipping form
-  const shippingSection = document.getElementById('shipping');
-  if (shippingSection) {
-    shippingSection.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => {
-      DOM.inputFullName.focus();
-    }, 600);
-  }
+// Filter Pills
+if (categoryPillList) {
+  categoryPillList.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-pill');
+    if (!btn) return;
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = btn.getAttribute('data-category') || 'all';
+    renderProducts();
+  });
 }
 
-/**
- * Quick direct WhatsApp order button from catalog card
- */
-window.orderViaWhatsAppDirect = function(productId) {
-  const product = allProducts.find(p => p.id === productId);
-  if (!product) return;
+// Live Search
+if (productSearchInput) {
+  productSearchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderProducts();
+  });
+}
 
-  const message = `مرحباً Dar Elsalam Store 👋\nأود طلب المنتج التالي:\n- المنتج: ${product.name}\n- السعر: ${product.price || 'حسب التوفر'} ج.م\nأرجو إفادتي بتفاصيل الشحن والتأكيد.`;
-  const url = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-};
+if (resetFiltersBtn) {
+  resetFiltersBtn.addEventListener('click', () => {
+    currentCategory = 'all';
+    searchQuery = '';
+    if (productSearchInput) productSearchInput.value = '';
+    document.querySelectorAll('.filter-pill').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-category') === 'all');
+    });
+    renderProducts();
+  });
+}
 
 /* ==========================================================================
-   8. OPENING OFFERS & COUNTDOWN TIMER
+   2. OPENING OFFER & COUNTDOWN TIMER
    ========================================================================== */
-
-/**
- * Initialize and run live countdown for the opening offer
- */
 function initOpeningOffer() {
-  const offer = getStoredOffer();
-  if (!offer) return;
+  const local = localStorage.getItem(STORAGE_KEYS.OFFER);
+  let offer = null;
+  if (local) {
+    try { offer = JSON.parse(local); } catch {}
+  }
 
-  // Apply offer details to DOM
-  if (DOM.offerTitleText) DOM.offerTitleText.textContent = offer.title || DEFAULT_OFFER.title;
-  if (DOM.offerDescText) DOM.offerDescText.textContent = offer.description || DEFAULT_OFFER.description;
-  if (DOM.offerNewPriceText) DOM.offerNewPriceText.innerHTML = `${offer.newPrice} <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small>`;
-  if (DOM.offerOldPriceText) DOM.offerOldPriceText.textContent = `${offer.oldPrice} ج.م`;
-  if (DOM.offerDiscountText) DOM.offerDiscountText.textContent = offer.discountBadge || "عرض حصري";
-  if (DOM.offerBannerImg && offer.image) DOM.offerBannerImg.src = offer.image;
+  if (!offer) {
+    const defaultEnd = new Date();
+    defaultEnd.setDate(defaultEnd.getDate() + 5);
+    offer = {
+      enabled: true,
+      title: "باقة الافتتاح الكبرى: ساعة ذكية Ultra + AirPods Pro + شاحن 65W",
+      description: "احصل على أقوى مجموعة تكنولوجية متكاملة بسعر الافتتاح الاستثنائي! وفر أكثر من 35% مع ضمان حقيقي وشحن فوري لجميع المحافظات.",
+      newPrice: "1,250",
+      oldPrice: "1,950",
+      discountBadge: "وفر 700 ج.م (36%-)",
+      image: "images/offers/launch-offer.svg",
+      expiresAt: defaultEnd.toISOString()
+    };
+  }
 
-  // If offer is explicitly disabled by owner
+  applyOfferData(offer);
+}
+
+function applyOfferData(offer) {
+  if (!openingOfferCard) return;
+
   if (offer.enabled === false) {
-    markOfferExpired("تم إيقاف العرض مؤقتاً");
+    openingOfferCard.style.display = 'none';
     return;
   }
+  openingOfferCard.style.display = 'block';
 
-  // Calculate countdown
-  const targetDate = new Date(offer.expiresAt).getTime();
-  if (isNaN(targetDate)) {
-    markOfferExpired("تاريخ انتهاء غير محدد");
-    return;
+  if (offerTitleText && offer.title) offerTitleText.textContent = offer.title;
+  if (offerDescriptionText && offer.description) offerDescriptionText.textContent = offer.description;
+  if (offerNewPriceText && offer.newPrice) offerNewPriceText.innerHTML = `${offer.newPrice} <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small>`;
+  if (offerOldPriceText && offer.oldPrice) offerOldPriceText.textContent = `${offer.oldPrice} ج.م`;
+  if (offerDiscountText && offer.discountBadge) offerDiscountText.textContent = offer.discountBadge;
+  if (offerBannerImg && offer.image) offerBannerImg.src = offer.image;
+
+  if (btnOfferOrder) {
+    btnOfferOrder.onclick = (e) => {
+      e.preventDefault();
+      if (orderProduct) {
+        orderProduct.value = offer.title || "عرض الافتتاح الخاص";
+      }
+      const shippingSection = document.getElementById('shipping');
+      if (shippingSection) {
+        shippingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
   }
 
-  // Clear previous interval if active
+  startCountdown(offer.expiresAt);
+}
+
+function startCountdown(expiresAt) {
   if (countdownInterval) clearInterval(countdownInterval);
 
-  const updateCountdown = () => {
-    const now = new Date().getTime();
+  const targetDate = expiresAt ? new Date(expiresAt).getTime() : (Date.now() + 5 * 86400000);
+
+  function update() {
+    const now = Date.now();
     const distance = targetDate - now;
 
     if (distance <= 0) {
       clearInterval(countdownInterval);
-      markOfferExpired("انتهى العرض");
+      if (countdownArea) countdownArea.style.display = 'none';
+      if (offerExpiredNotice) offerExpiredNotice.style.display = 'block';
+      if (btnOfferOrder) {
+        btnOfferOrder.style.opacity = '0.5';
+        btnOfferOrder.style.pointerEvents = 'none';
+      }
       return;
     }
 
-    // Time calculations for days, hours, minutes and seconds
+    if (countdownArea) countdownArea.style.display = 'block';
+    if (offerExpiredNotice) offerExpiredNotice.style.display = 'none';
+    if (btnOfferOrder) {
+      btnOfferOrder.style.opacity = '1';
+      btnOfferOrder.style.pointerEvents = 'auto';
+    }
+
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    DOM.timerDays.textContent = String(days).padStart(2, '0');
-    DOM.timerHours.textContent = String(hours).padStart(2, '0');
-    DOM.timerMinutes.textContent = String(minutes).padStart(2, '0');
-    DOM.timerSeconds.textContent = String(seconds).padStart(2, '0');
-  };
-
-  updateCountdown();
-  countdownInterval = setInterval(updateCountdown, 1000);
-}
-
-/**
- * Handle expired offer state
- */
-function markOfferExpired(reasonText) {
-  if (DOM.offerCard) DOM.offerCard.classList.add('expired');
-  if (DOM.offerExpiredNotice) {
-    DOM.offerExpiredNotice.querySelector('strong').textContent = reasonText || "انتهى العرض";
-    DOM.offerExpiredNotice.style.display = 'block';
+    const pad = (n) => String(n).padStart(2, '0');
+    if (timerDays) timerDays.textContent = pad(days);
+    if (timerHours) timerHours.textContent = pad(hours);
+    if (timerMinutes) timerMinutes.textContent = pad(minutes);
+    if (timerSeconds) timerSeconds.textContent = pad(seconds);
   }
+
+  update();
+  countdownInterval = setInterval(update, 1000);
 }
 
 /* ==========================================================================
-   9. SHIPPING & ORDER FORM VALIDATION + WHATSAPP SUBMISSION
+   3. QR CODE SYSTEM (Dropdown, Modal & Copy)
    ========================================================================== */
-
-/**
- * Validates Egyptian mobile phone number or general international numbers
- */
-function isValidPhone(phone) {
-  const clean = phone.trim().replace(/[\s\-\(\)]/g, '');
-  // Egyptian mobile regex: starts with 010, 011, 012, 015, or +201...
-  const egPattern = /^(01[0125][0-9]{8}|(\+?20)1[0125][0-9]{8})$/;
-  return egPattern.test(clean) || clean.length >= 8;
+function copyStoreUrl() {
+  const url = STORE_CONFIG.siteUrl;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast("✓ تم نسخ رابط المتجر بنجاح إلى الحافظة!");
+    }).catch(() => {
+      fallbackCopyText(url);
+    });
+  } else {
+    fallbackCopyText(url);
+  }
 }
 
-/**
- * Validates Email syntax
- */
-function isValidEmail(email) {
-  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return pattern.test(email.trim());
+function fallbackCopyText(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed";
+  textArea.style.opacity = "0";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    showToast("✓ تم نسخ رابط المتجر بنجاح!");
+  } catch {
+    prompt("انسخ الرابط يدوياً:", text);
+  }
+  document.body.removeChild(textArea);
 }
 
-/**
- * Validate form inputs and toggle Arabic error messages
- */
+// Nav QR button trigger
+if (openQrBtn) {
+  openQrBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (navQrDropdown) navQrDropdown.classList.toggle('open');
+  });
+}
+
+// Header QR icon button opens modal directly
+if (openQrBtnHeader) {
+  openQrBtnHeader.addEventListener('click', () => {
+    if (qrModal) qrModal.classList.add('open');
+  });
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+  if (navQrDropdown && !navQrDropdown.contains(e.target) && e.target !== openQrBtn) {
+    navQrDropdown.classList.remove('open');
+  }
+});
+
+// Copy buttons
+if (btnCopyDropdown) btnCopyDropdown.addEventListener('click', copyStoreUrl);
+if (btnCopyMobileQr) btnCopyMobileQr.addEventListener('click', copyStoreUrl);
+if (btnCopySiteUrl) btnCopySiteUrl.addEventListener('click', copyStoreUrl);
+
+if (btnShareQrWhatsApp) {
+  btnShareQrWhatsApp.addEventListener('click', () => {
+    const text = `تفضل بزيارة متجر Dar Elsalam Store للإلكترونيات وصيانة الهواتف الذكية في الإسكندرية عبر الرابط:\n${STORE_CONFIG.siteUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  });
+}
+
+if (qrModalCloseBtn) {
+  qrModalCloseBtn.addEventListener('click', () => {
+    if (qrModal) qrModal.classList.remove('open');
+  });
+}
+
+if (qrModal) {
+  qrModal.addEventListener('click', (e) => {
+    if (e.target === qrModal) qrModal.classList.remove('open');
+  });
+}
+
+/* ==========================================================================
+   4. SHIPPING & ORDER FORM HANDLING
+   ========================================================================== */
 function validateOrderForm() {
   let isValid = true;
 
-  // 1. Full Name (Required)
-  const nameVal = DOM.inputFullName.value.trim();
-  const groupName = document.getElementById('groupFullName');
-  if (!nameVal || nameVal.length < 2) {
-    groupName.classList.add('has-error');
-    DOM.inputFullName.classList.add('error');
+  const nameVal = orderFullName ? orderFullName.value.trim() : '';
+  const phoneVal = orderPhone ? orderPhone.value.trim() : '';
+  const prodVal = orderProduct ? orderProduct.value.trim() : '';
+
+  // Name
+  if (!nameVal) {
+    setFieldError('groupFullName', true);
     isValid = false;
   } else {
-    groupName.classList.remove('has-error');
-    DOM.inputFullName.classList.remove('error');
+    setFieldError('groupFullName', false);
   }
 
-  // 2. Phone (Required)
-  const phoneVal = DOM.inputPhone.value.trim();
-  const groupPhone = document.getElementById('groupPhone');
-  if (!isValidPhone(phoneVal)) {
-    groupPhone.classList.add('has-error');
-    DOM.inputPhone.classList.add('error');
+  // Phone (Egyptian mobile check: 01[0125][0-9]{8})
+  const phoneRegex = /^01[0125][0-9]{8}$/;
+  const cleanPhone = phoneVal.replace(/[\s-]/g, '');
+  if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
+    setFieldError('groupPhone', true);
     isValid = false;
   } else {
-    groupPhone.classList.remove('has-error');
-    DOM.inputPhone.classList.remove('error');
+    setFieldError('groupPhone', false);
   }
 
-  // 3. Email (Required)
-  const emailVal = DOM.inputEmail.value.trim();
-  const groupEmail = document.getElementById('groupEmail');
-  if (!isValidEmail(emailVal)) {
-    groupEmail.classList.add('has-error');
-    DOM.inputEmail.classList.add('error');
+  // Product
+  if (!prodVal) {
+    setFieldError('groupProduct', true);
     isValid = false;
   } else {
-    groupEmail.classList.remove('has-error');
-    DOM.inputEmail.classList.remove('error');
-  }
-
-  // 4. Product (Required)
-  const productVal = DOM.inputProduct.value.trim();
-  const groupProduct = document.getElementById('groupProduct');
-  if (!productVal) {
-    groupProduct.classList.add('has-error');
-    DOM.inputProduct.classList.add('error');
-    isValid = false;
-  } else {
-    groupProduct.classList.remove('has-error');
-    DOM.inputProduct.classList.remove('error');
+    setFieldError('groupProduct', false);
   }
 
   return isValid;
 }
 
-/**
- * Collect all data from the order form
- */
-function getFormData() {
+function setFieldError(groupId, hasError) {
+  const el = document.getElementById(groupId);
+  if (el) el.classList.toggle('has-error', hasError);
+}
+
+function getOrderPayload() {
   return {
-    fullName: DOM.inputFullName.value.trim(),
-    phone: DOM.inputPhone.value.trim(),
-    email: DOM.inputEmail.value.trim(),
-    quantity: DOM.inputQuantity.value || "1",
-    product: DOM.inputProduct.value.trim(),
-    governorate: DOM.selectGov.value,
-    address: DOM.inputAddress.value.trim() || "غير محدد",
-    notes: DOM.inputNotes.value.trim() || "لا توجد ملاحظات"
+    id: 'ORD-' + Date.now().toString(36).toUpperCase(),
+    createdAt: new Date().toISOString(),
+    fullName: orderFullName ? orderFullName.value.trim() : '',
+    phone: orderPhone ? orderPhone.value.trim() : '',
+    product: orderProduct ? orderProduct.value.trim() : '',
+    quantity: orderQuantity ? parseInt(orderQuantity.value, 10) || 1 : 1,
+    governorate: orderGovernorate ? orderGovernorate.value : 'الإسكندرية',
+    address: orderAddress ? orderAddress.value.trim() : '',
+    notes: orderNotes ? orderNotes.value.trim() : ''
   };
 }
 
-/**
- * Generate formatted WhatsApp message and open link
- */
-function submitViaWhatsApp() {
-  if (!validateOrderForm()) {
-    showToast("يرجى التأكد من استكمال البيانات الإلزامية المطلوبة", "error");
-    return;
+function saveOrderLocally(orderData) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.ORDERS);
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(orderData);
+    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(list));
+  } catch (err) {
+    console.warn("Local storage order save error:", err);
   }
-
-  const data = getFormData();
-  saveCustomerOrder(data);
-
-  const message = 
-    `🛍️ *طلب جديد عبر موقع Dar Elsalam Store*\n` +
-    `----------------------------------\n` +
-    `👤 *اسم العميل:* ${data.fullName}\n` +
-    `📱 *رقم الهاتف:* ${data.phone}\n` +
-    `✉️ *البريد الإلكتروني:* ${data.email}\n` +
-    `📦 *المنتج المطلوب:* ${data.product}\n` +
-    `🔢 *الكمية:* ${data.quantity}\n` +
-    `📍 *المحافظة:* ${data.governorate}\n` +
-    `🏠 *العنوان:* ${data.address}\n` +
-    `📝 *الملاحظات:* ${data.notes}\n` +
-    `----------------------------------\n` +
-    `يرجى تأكيد استلام الطلب وموعد التوصيل. شكراً لك!`;
-
-  const waUrl = `https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-  window.open(waUrl, '_blank', 'noopener,noreferrer');
-
-  showToast("تم فتح محادثة الواتساب لتأكيد طلبك بنجاح! 🚀", "success");
 }
 
-/**
- * Submit locally (mock backend submission)
- */
-function submitLocalOrder(e) {
-  e.preventDefault();
-  if (!validateOrderForm()) {
-    showToast("يرجى ملء كافة الحقول المطلوبة بشكل صحيح", "error");
-    return;
-  }
+// WhatsApp Order Button
+if (btnSubmitWhatsApp) {
+  btnSubmitWhatsApp.addEventListener('click', () => {
+    if (!validateOrderForm()) {
+      showToast("⚠️ من فضلك أكمل البيانات الإلزامية برقم هاتف صحيح");
+      return;
+    }
 
-  const data = getFormData();
-  saveCustomerOrder(data);
+    const order = getOrderPayload();
+    saveOrderLocally(order);
 
-  showToast(`شكراً لك يا ${data.fullName}، تم تسجيل طلبك بنجاح وسيتواصل معك مندوبنا قريباً!`, "success");
-  DOM.orderForm.reset();
-  DOM.selectGov.value = "الإسكندرية";
-  DOM.inputQuantity.value = "1";
-}
+    // Save to Firestore if available
+    if (window.darSaveOrderToFirestore) {
+      window.darSaveOrderToFirestore(order);
+    }
 
-/* ==========================================================================
-   10. TOAST NOTIFICATIONS HELPER
-   ========================================================================== */
-function showToast(message, type = "success") {
-  if (!DOM.toastContainer) return;
+    const waMsg = `📦 *طلب جديد من موقع Dar Elsalam Store*
+----------------------------------
+👤 *الاسم:* ${order.fullName}
+📞 *الهاتف:* ${order.phone}
+📱 *المنتج / الخدمة:* ${order.product}
+🔢 *الكمية:* ${order.quantity}
+📍 *المحافظة:* ${order.governorate}
+🏠 *العنوان:* ${order.address || 'غير محدد'}
+📝 *ملاحظات:* ${order.notes || 'لا يوجد'}
+----------------------------------
+🔗 تم الطلب عبر: ${STORE_CONFIG.siteUrl}`;
 
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <span>${type === 'success' ? '✓' : '⚠️'}</span>
-    <span>${escapeHTML(message)}</span>
-  `;
-
-  DOM.toastContainer.appendChild(toast);
-
-  // Trigger animation
-  requestAnimationFrame(() => {
-    toast.classList.add('show');
+    window.open(`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(waMsg)}`, '_blank');
+    showToast("✓ جاري فتح محادثة الواتساب لتأكيد طلبك...");
   });
+}
 
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => {
-      if (toast.parentNode) toast.parentNode.removeChild(toast);
-    }, 300);
-  }, 4000);
+// Local submit
+if (orderForm) {
+  orderForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!validateOrderForm()) {
+      showToast("⚠️ من فضلك تأكد من ملء الحقول المطلوبة بشكل صحيح");
+      return;
+    }
+
+    const order = getOrderPayload();
+    saveOrderLocally(order);
+
+    if (window.darSaveOrderToFirestore) {
+      window.darSaveOrderToFirestore(order);
+    }
+
+    showToast("✓ تم تسجيل طلبك بنجاح! سيتواصل معك فريق المتجر قريباً.");
+    orderForm.reset();
+  });
 }
 
 /* ==========================================================================
-   11. NAVIGATION & MOBILE DRAWER
+   5. NAVIGATION & FLOATING CONTROLS
    ========================================================================== */
-function toggleMobileDrawer(open) {
-  if (open) {
-    DOM.mobileDrawer.classList.add('open');
-    DOM.mobileOverlay.classList.add('open');
-    DOM.hamburgerBtn.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-  } else {
-    DOM.mobileDrawer.classList.remove('open');
-    DOM.mobileOverlay.classList.remove('open');
-    DOM.hamburgerBtn.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
+// Mobile Drawer Toggles
+if (hamburgerBtn && mobileNavDrawer && mobileNavOverlay) {
+  hamburgerBtn.addEventListener('click', () => {
+    mobileNavDrawer.classList.add('open');
+    mobileNavOverlay.classList.add('open');
+  });
+}
+
+function closeMobileDrawer() {
+  if (mobileNavDrawer) mobileNavDrawer.classList.remove('open');
+  if (mobileNavOverlay) mobileNavOverlay.classList.remove('open');
+}
+
+if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeMobileDrawer);
+if (mobileNavOverlay) mobileNavOverlay.addEventListener('click', closeMobileDrawer);
+mobileNavLinks.forEach(link => link.addEventListener('click', closeMobileDrawer));
+
+// Scroll To Top
+window.addEventListener('scroll', () => {
+  if (scrollTopBtn) {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
   }
-}
+});
 
-/* ==========================================================================
-   12. EVENT LISTENERS SETUP
-   ========================================================================== */
-function setupEventListeners() {
-  // Sticky Header on Scroll
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 40) {
-      DOM.header.classList.add('scrolled');
-    } else {
-      DOM.header.classList.remove('scrolled');
-    }
-
-    // Scroll to top button visibility
-    if (window.scrollY > 450) {
-      DOM.scrollTopBtn.classList.add('visible');
-    } else {
-      DOM.scrollTopBtn.classList.remove('visible');
-    }
-  }, { passive: true });
-
-  // Scroll to top action
-  DOM.scrollTopBtn.addEventListener('click', () => {
+if (scrollTopBtn) {
+  scrollTopBtn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+}
 
-  // Mobile Drawer toggles
-  DOM.hamburgerBtn.addEventListener('click', () => toggleMobileDrawer(true));
-  DOM.closeDrawerBtn.addEventListener('click', () => toggleMobileDrawer(false));
-  DOM.mobileOverlay.addEventListener('click', () => toggleMobileDrawer(false));
-
-  // Close mobile drawer when clicking any link
-  DOM.mobileNavLinks.forEach(link => {
-    link.addEventListener('click', () => toggleMobileDrawer(false));
-  });
-
-  // Search input live filtering
-  DOM.searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    renderCatalog();
-  });
-
-  // Category filter pills
-  DOM.categoryPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      DOM.categoryPills.forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      activeCategory = pill.getAttribute('data-category');
-      renderCatalog();
-    });
-  });
-
-  // Reset filter button in empty state
-  if (DOM.resetFiltersBtn) {
-    DOM.resetFiltersBtn.addEventListener('click', () => {
-      DOM.searchInput.value = '';
-      searchQuery = '';
-      activeCategory = 'all';
-      DOM.categoryPills.forEach(p => {
-        if (p.getAttribute('data-category') === 'all') p.classList.add('active');
-        else p.classList.remove('active');
-      });
-      renderCatalog();
-    });
-  }
-
-  // Modal interactions
-  DOM.modalCloseBtn.addEventListener('click', closeProductModal);
-  DOM.productModal.addEventListener('click', (e) => {
-    if (e.target === DOM.productModal) closeProductModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && DOM.productModal.classList.contains('open')) {
-      closeProductModal();
-    }
-  });
-
-  DOM.modalOrderWhatsAppBtn.addEventListener('click', handleModalWhatsAppOrder);
-  DOM.modalFillFormBtn.addEventListener('click', handleModalFillShippingForm);
-
-  // Offer CTA button: prefill shipping form
-  if (DOM.btnOfferOrder) {
-    DOM.btnOfferOrder.addEventListener('click', (e) => {
-      const offer = getStoredOffer();
-      if (offer && offer.title) {
-        DOM.inputProduct.value = offer.title;
-      }
-    });
-  }
-
-  // Order Form handlers
-  DOM.btnSubmitWhatsApp.addEventListener('click', submitViaWhatsApp);
-  DOM.orderForm.addEventListener('submit', submitLocalOrder);
-
-  // Dynamic Year in footer
-  if (DOM.currentYearSpan) {
-    DOM.currentYearSpan.textContent = new Date().getFullYear();
-  }
-
-  // Listen to Storage events (synchronize across open tabs if admin makes changes)
-  window.addEventListener('storage', (e) => {
-    if (e.key === STORE_CONFIG.STORAGE_KEYS.PRODUCTS) {
-      allProducts = getStoredProducts();
-      renderCatalog();
-    }
-    if (e.key === STORE_CONFIG.STORAGE_KEYS.OFFER) {
-      initOpeningOffer();
-    }
-  });
+// Dynamic Year
+if (currentYearSpan) {
+  currentYearSpan.textContent = new Date().getFullYear();
 }
 
 /* ==========================================================================
-   13. INITIALIZATION ON DOM READY
+   6. UTILITIES
    ========================================================================== */
+function showToast(message) {
+  if (!toastContainer) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  toastContainer.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>'"]/g, 
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
+}
+
+// Global hooks for external synchronization (e.g. Firebase Firestore)
+window.darUpdateProductsCatalog = function(products) {
+  if (Array.isArray(products) && products.length > 0) {
+    storeProducts = products;
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    renderProducts();
+  }
+};
+
+window.darUpdateOffer = function(offer) {
+  if (offer && typeof offer === 'object') {
+    localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offer));
+    applyOfferData(offer);
+  }
+};
+
+// Initial boot
 document.addEventListener('DOMContentLoaded', () => {
-  // Load products
-  allProducts = getStoredProducts();
-  
-  // Render catalog
-  renderCatalog();
-
-  // Initialize countdown offer
+  initProducts();
   initOpeningOffer();
-
-  // Setup UI listeners
-  setupEventListeners();
-
-  console.log(`%c🚀 ${STORE_CONFIG.name} Store loaded successfully.`, "color: #00e5ff; font-weight: bold; font-size: 14px;");
 });

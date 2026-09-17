@@ -234,6 +234,9 @@ function loadProducts() {
 function saveProducts() {
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(productsList));
   renderProductsTable();
+  if (window.darSyncProductsToFirestore) {
+    window.darSyncProductsToFirestore(productsList);
+  }
 }
 
 /**
@@ -328,6 +331,9 @@ window.deleteProduct = function(id) {
   if (confirm(`هل أنت متأكد من حذف المنتج:\n"${p.name}"؟`)) {
     productsList = productsList.filter(item => item.id !== id);
     saveProducts();
+    if (window.darDeleteProductFromFirestore) {
+      window.darDeleteProductFromFirestore(id);
+    }
     alert('تم حذف المنتج بنجاح.');
   }
 };
@@ -490,6 +496,9 @@ offerConfigForm.addEventListener('submit', (e) => {
   };
 
   localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offerData));
+  if (window.darSyncOfferToFirestore) {
+    window.darSyncOfferToFirestore(offerData);
+  }
   alert('تم تحديث إعدادات عرض الافتتاح بنجاح! التغييرات ستظهر فوراً في واجهة المتجر.');
 });
 
@@ -573,6 +582,8 @@ function escapeHTML(str) {
     tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
   );
 }
+
+window.loadOrdersTable = loadOrdersTable;
 
 // Initial setup
 function initDashboard() {

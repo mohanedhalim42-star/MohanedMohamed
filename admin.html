@@ -351,6 +351,96 @@
     </div>
   </div>
 
+  <!-- Firebase SDK, Analytics & Firestore Initialization -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+    import { 
+      getFirestore, 
+      collection, 
+      doc, 
+      setDoc, 
+      deleteDoc, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_k8ooUm7P69yvvqvsluRiUcq0jUR7HMc",
+      authDomain: "dar-elsalam-store.firebaseapp.com",
+      projectId: "dar-elsalam-store",
+      storageBucket: "dar-elsalam-store.firebasestorage.app",
+      messagingSenderId: "95713594592",
+      appId: "1:95713594592:web:2180d85049ad33b9db5485",
+      measurementId: "G-XCPKGNKGT5"
+    };
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      window.firebaseApp = app;
+
+      isSupported().then(supported => {
+        if (supported) {
+          const analytics = getAnalytics(app);
+          window.firebaseAnalytics = analytics;
+        }
+      }).catch(() => {});
+
+      const db = getFirestore(app);
+      window.firebaseDb = db;
+
+      // Sync Products to Firestore
+      window.darSyncProductsToFirestore = async function(products) {
+        try {
+          for (const p of products) {
+            const docRef = doc(db, "products", String(p.id));
+            await setDoc(docRef, p);
+          }
+          console.log("Admin: Products synced to Firestore.");
+        } catch (err) {
+          console.warn("Error syncing products to Firestore:", err);
+        }
+      };
+
+      // Delete Product from Firestore
+      window.darDeleteProductFromFirestore = async function(productId) {
+        try {
+          await deleteDoc(doc(db, "products", String(productId)));
+          console.log("Admin: Product deleted from Firestore.");
+        } catch (err) {
+          console.warn("Error deleting product from Firestore:", err);
+        }
+      };
+
+      // Sync Offer to Firestore
+      window.darSyncOfferToFirestore = async function(offerData) {
+        try {
+          await setDoc(doc(db, "settings", "offer"), offerData);
+          console.log("Admin: Offer synced to Firestore.");
+        } catch (err) {
+          console.warn("Error syncing offer to Firestore:", err);
+        }
+      };
+
+      // Realtime listener for incoming orders
+      onSnapshot(collection(db, "orders"), (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteOrders = [];
+          snapshot.forEach(docSnap => {
+            remoteOrders.push(docSnap.data());
+          });
+          remoteOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+          localStorage.setItem("dar_elsalam_orders_v1", JSON.stringify(remoteOrders));
+          if (typeof window.loadOrdersTable === 'function') {
+            window.loadOrdersTable();
+          }
+        }
+      }, (err) => console.warn("Orders sync error:", err));
+
+    } catch (e) {
+      console.warn("Firebase initialization warning:", e);
+    }
+  </script>
+
   <!-- Admin JS Script -->
   <script src="admin.js"></script>
 </body>

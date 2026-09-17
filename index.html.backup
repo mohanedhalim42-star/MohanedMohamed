@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dar Elsalam Store | صيانة موبايلات وإكسسوارات ومنتجات إلكترونية</title>
+  <meta name="description" content="Dar Elsalam Store لصيانة الموبايلات وبيع الإكسسوارات والسماعات وAirPods والساعات الذكية والمنتجات الإلكترونية مع خدمة الشحن داخل وخارج الإسكندرية.">
+  <meta name="keywords" content="صيانة موبايلات, إكسسوارات موبايل, سماعات, AirPods, ساعات ذكية, منتجات إلكترونية, الإسكندرية, دار السلام ستور, Dar Elsalam Store">
+  <meta name="author" content="Dar Elsalam Store">
+  <meta name="theme-color" content="#060913">
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Dar Elsalam Store | متجر دار السلام للإلكترونيات وصيانة الموبايل">
+  <meta property="og:description" content="كل احتياجات موبايلك وإلكترونياتك في مكان واحد. صيانة فورية، إكسسوارات، وساعات ذكية مع شحن فوري داخل وخارج الإسكندرية.">
+  <meta property="og:image" content="images/logo.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="images/logo-square.jpg">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== STICKY HEADER & NAVIGATION ==================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav-container">
+      
+      <!-- Brand Logo -->
+      <a href="#hero" class="brand-logo" aria-label="Dar Elsalam Store الرئيسية">
+        <img src="images/logo-square.jpg" alt="Dar Elsalam Store Logo" class="brand-logo-img">
+        <div class="brand-text">
+          <span class="brand-title">Dar Elsalam Store</span>
+          <span class="brand-subtitle">MOBILE &amp; ELECTRONICS</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Menu -->
+      <nav aria-label="القائمة الرئيسية">
+        <ul class="nav-menu">
+          <li><a href="#hero" class="nav-link active">الرئيسية</a></li>
+          <li><a href="#products" class="nav-link">منتجات Dar Elsalam Store</a></li>
+          <li><a href="#offers" class="nav-link">عروض الافتتاح 🔥</a></li>
+          <li><a href="#shipping" class="nav-link">الشحن داخل وخارج الإسكندرية 🚚</a></li>
+          <li><a href="#about" class="nav-link">عن المتجر</a></li>
+          <li><a href="#contact" class="nav-link">تواصل معنا</a></li>
+          <li class="nav-item-qr">
+            <button type="button" class="nav-link btn-nav-qr-trigger" id="openQrBtn" title="رمز QR لمشاركة رابط الموقع" aria-expanded="false">
+              <span>📱 كود QR</span>
+            </button>
+            <!-- Floating Nav Dropdown for Instant QR Viewing -->
+            <div class="nav-qr-dropdown" id="navQrDropdown">
+              <div class="nav-qr-frame">
+                <img src="images/qr-code.png" alt="QR Code لموقع متجر دار السلام" class="nav-qr-img">
+              </div>
+              <div class="nav-qr-caption">امسح الرمز لفتح المتجر</div>
+              <div class="nav-qr-url">dar-elsalam-store.firebaseapp.com</div>
+              <div class="nav-qr-btns">
+                <button type="button" class="btn-qr-dropdown-copy" id="btnCopyDropdown">📋 نسخ</button>
+                <a href="https://wa.me/?text=https%3A%2F%2Fdar-elsalam-store.firebaseapp.com" target="_blank" rel="noopener noreferrer" class="btn-qr-dropdown-wa">واتساب</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Nav Call to Action & Hamburger -->
+      <div class="nav-actions">
+        <button type="button" class="btn-nav-qr-icon" id="openQrBtnHeader" title="رمز QR لرابط المتجر" aria-label="رمز QR">
+          <span>📱 QR</span>
+        </button>
+        <a href="tel:01008991290" class="btn-nav-call" title="اتصل بنا الآن">
+          <span>📞</span>
+          <span>01008991290</span>
+        </a>
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="فتح القائمة" aria-expanded="false">
+          ☰
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+  <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-label="القائمة الجانبية للموبايل">
+    <div class="mobile-nav-header">
+      <div class="brand-logo">
+        <img src="images/logo-square.jpg" alt="Dar Elsalam Store Logo" class="brand-logo-img" style="width: 38px; height: 38px;">
+        <div class="brand-text">
+          <span class="brand-title" style="font-size: 1.1rem;">Dar Elsalam</span>
+          <span class="brand-subtitle">STORE</span>
+        </div>
+      </div>
+      <button class="close-drawer-btn" id="closeDrawerBtn" aria-label="إغلاق القائمة">✕</button>
+    </div>
+    
+    <ul class="mobile-nav-list">
+      <li><a href="#hero" class="mobile-nav-link active">🏠 الرئيسية</a></li>
+      <li><a href="#products" class="mobile-nav-link">📱 منتجات Dar Elsalam Store</a></li>
+      <li><a href="#offers" class="mobile-nav-link">🔥 عروض الافتتاح</a></li>
+      <li><a href="#shipping" class="mobile-nav-link">🚚 الشحن داخل وخارج الإسكندرية</a></li>
+      <li><a href="#about" class="mobile-nav-link">ℹ️ عن المتجر</a></li>
+      <li><a href="#contact" class="mobile-nav-link">💬 تواصل معنا</a></li>
+      <li class="mobile-qr-item">
+        <div class="mobile-qr-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <strong style="color: var(--accent-cyan); font-size: 0.92rem;">📱 رمز QR لرابط المتجر</strong>
+            <button type="button" class="btn-copy-mobile-qr-badge" id="btnCopyMobileQr">📋 نسخ الرابط</button>
+          </div>
+          <div class="mobile-qr-img-wrap">
+            <img src="images/qr-code.png" alt="QR Code لموقع متجر دار السلام" class="mobile-qr-img">
+          </div>
+          <div class="mobile-qr-url">dar-elsalam-store.firebaseapp.com</div>
+        </div>
+      </li>
+      <li><a href="admin.html" class="mobile-nav-link" style="color: var(--accent-cyan); font-weight: 700;">⚙️ لوحة تحكم المتجر (Admin)</a></li>
+    </ul>
+
+    <div class="mobile-nav-footer">
+      <a href="https://wa.me/201008991290" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp" style="width: 100%;">
+        <span>واتساب المباشر</span>
+      </a>
+      <a href="tel:01008991290" class="btn btn-secondary" style="width: 100%;">
+        <span>📞 01008991290</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="hero-section" id="hero">
+    <div class="container">
+      <div class="hero-grid">
+        
+        <!-- Text & CTA Content -->
+        <div class="hero-content">
+          <div class="hero-badge-container">
+            <span class="hero-pulse-dot"></span>
+            <span class="hero-badge-text">متجر ومطوّر صيانة معتمد في الإسكندرية</span>
+          </div>
+
+          <h1 class="hero-title">
+            <span class="hero-title-highlight">Dar Elsalam Store</span>
+          </h1>
+
+          <p class="hero-tagline">"كل احتياجات موبايلك وإلكترونياتك في مكان واحد"</p>
+
+          <p class="hero-categories-pills">
+            صيانة موبايلات • إكسسوارات • سماعات • AirPods • Smart Watches • منتجات إلكترونية
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#products" class="btn btn-primary">
+              <span>تصفح المنتجات</span>
+              <span>←</span>
+            </a>
+            <a href="#contact" class="btn btn-secondary">
+              <span>تواصل معنا</span>
+              <span>💬</span>
+            </a>
+            <a href="https://wa.me/201008991290" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp" title="تواصل عبر الواتساب">
+              <span>طلب عبر واتساب</span>
+            </a>
+          </div>
+
+          <!-- Trust & Achievement Counters -->
+          <div class="hero-stats">
+            <div class="stat-item">
+              <span class="stat-number" data-target="3000">+3,000</span>
+              <span class="stat-label">صيانة وجهاز تم إصلاحه</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">قطع غيار أصلية ومضمونة</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">27</span>
+              <span class="stat-label">محافظة شحن في جميع أنحاء مصر</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shop Visual Showcase (Single swappable image point) -->
+        <div class="hero-visual">
+          <div class="hero-ambient-glow"></div>
+          <div class="hero-image-wrapper">
+            <!-- Official Store Brand Logo Banner -->
+            <img 
+              id="heroShopImage"
+              src="images/logo.jpg" 
+              alt="Dar Elsalam Store - الشعار الرسمي لمتجر دار السلام للإلكترونيات وصيانة الهواتف" 
+              class="hero-main-img"
+              loading="eager"
+            >
+          </div>
+
+          <!-- Floating Interactive Badges -->
+          <div class="hero-float-badge top-left">
+            <span style="font-size: 1.5rem;">🔧</span>
+            <div>
+              <strong style="display:block; font-size: 0.95rem; color: #fff;">صيانة فورية</strong>
+              <small style="color: var(--accent-cyan);">بأحدث الأجهزة الإلكترونية</small>
+            </div>
+          </div>
+
+          <div class="hero-float-badge bottom-right">
+            <span style="font-size: 1.5rem;">🚚</span>
+            <div>
+              <strong style="display:block; font-size: 0.95rem; color: #fff;">شحن الإسكندرية والمحافظات</strong>
+              <small style="color: var(--accent-cyan);">توصيل سريع حتى باب بيتك</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SHOP INFORMATION SECTION ==================== -->
+  <section class="about-section" id="about">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag">من نحن</span>
+        <h2 class="section-title">عن <span class="text-gradient">Dar Elsalam Store</span></h2>
+        <p class="section-subtitle">رواد عالم التكنولوجيا، خدمات الصيانة الاحترافية وأرقى الإكسسوارات الذكية</p>
+      </div>
+
+      <!-- Main Summary Statement Box -->
+      <div class="about-intro-box">
+        <p class="about-intro-text">
+          "Dar Elsalam Store متخصص في صيانة الموبايلات وتوفير إكسسوارات الموبايلات والسماعات والـ AirPods والساعات الذكية والعديد من المنتجات الإلكترونية."
+        </p>
+      </div>
+
+      <!-- Feature Cards Grid -->
+      <div class="about-features-grid">
+        
+        <div class="feature-card">
+          <div class="feature-icon-box">🔧</div>
+          <h3 class="feature-title">صيانة موبايلات</h3>
+          <p class="feature-desc">صيانة دقيقة وفورية للشاشات، البطاريات، البوردات، ومنافذ الشحن بأعلى معايير الجودة وقطع أصلية.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📱</div>
+          <h3 class="feature-title">إكسسوارات موبايلات</h3>
+          <p class="feature-desc">أقوى الجرابات المقاومة للصدمات، إسكرينات الحماية الزجاجية والحرارية، وحوامل السيارات المغناطيسية.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🎧</div>
+          <h3 class="feature-title">سماعات وAirPods</h3>
+          <p class="feature-desc">سماعات بلوتوث ولاسلكية بنقاء صوت نقي مع ميزة عزل الضوضاء النشط (ANC) وميكروفونات مكالمات فائقة الوضوح.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">⌚</div>
+          <h3 class="feature-title">Smart Watches</h3>
+          <p class="feature-desc">تشكيلة واسعة من الساعات الذكية المتطورة بشاشات AMOLED ومتابعة المؤشرات الحيوية والرياضية.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">⚡</div>
+          <h3 class="feature-title">منتجات إلكترونية</h3>
+          <p class="feature-desc">شواحن GaN فائقة السرعة، كابلات شحن معتمدة، باور بنك عالي السعة، ومحولات ذكية تلبي كافة احتياجاتك.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🚚</div>
+          <h3 class="feature-title">شحن داخل وخارج الإسكندرية</h3>
+          <p class="feature-desc">توصيل سريع وآمن لجميع مناطق الإسكندرية وشحن فوري لجميع محافظات جمهورية مصر العربية حتى باب منزلك.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== PRODUCTS CATALOG SECTION ==================== -->
+  <section class="products-section" id="products">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag">كتالوج المنتجات</span>
+        <h2 class="section-title">منتجات <span class="text-gradient">Dar Elsalam Store</span></h2>
+        <p class="section-subtitle">تصفح تشكيلتنا المميزة من الأجهزة، الإكسسوارات، وخدمات الصيانة بأفضل الأسعار والضمانات</p>
+      </div>
+
+      <!-- Search & Filter Controls -->
+      <div class="products-toolbar">
+        <!-- Search Input -->
+        <div class="search-box-wrapper">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            id="productSearchInput" 
+            class="search-input" 
+            placeholder="ابحث بالاسم أو الوصف (مثال: AirPods، ساعة، صيانة، شاحن...)"
+            aria-label="البحث عن منتج"
+          >
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="category-filter-list" id="categoryPillList" role="tablist" aria-label="تصنيفات المنتجات">
+          <button class="filter-pill active" data-category="all" role="tab">الكل</button>
+          <button class="filter-pill" data-category="صيانة" role="tab">🔧 صيانة موبايلات</button>
+          <button class="filter-pill" data-category="إكسسوارات" role="tab">📱 إكسسوارات</button>
+          <button class="filter-pill" data-category="سماعات" role="tab">🎧 سماعات وAirPods</button>
+          <button class="filter-pill" data-category="ساعات ذكية" role="tab">⌚ Smart Watches</button>
+          <button class="filter-pill" data-category="إلكترونيات" role="tab">⚡ إلكترونيات وشواحن</button>
+        </div>
+      </div>
+
+      <!-- Dynamic Products Grid (Rendered by JS) -->
+      <div class="products-grid" id="productsGrid" aria-live="polite">
+        <!-- Populated via script.js from localStorage/STORE_CONFIG -->
+      </div>
+
+      <!-- Empty State Container -->
+      <div class="empty-state" id="emptyStateContainer" style="display: none;">
+        <div class="empty-icon">🔍</div>
+        <h3 class="empty-title">لم نجد منتجات مطابقة لبحثك</h3>
+        <p class="empty-desc">جرب استخدام كلمات بحث مختلفة أو اضغط على تصنيف "الكل".</p>
+        <button class="btn btn-secondary" id="resetFiltersBtn">إعادة ضبط الفلتر</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== OPENING OFFERS SECTION ==================== -->
+  <section class="offers-section" id="offers">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag" style="background: rgba(255, 71, 87, 0.15); border-color: rgba(255, 71, 87, 0.4); color: #ff6b81;">خصومات حصرية</span>
+        <h2 class="section-title">عروض الافتتاح <span class="text-gradient" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); -webkit-background-clip: text;">🔥</span></h2>
+        <p class="section-subtitle">اغتنم عروض تدشين متجر Dar Elsalam Store بأسعار لا تقبل المنافسة ولفترة محدودة جداً</p>
+      </div>
+
+      <!-- Live Opening Offer Card -->
+      <div class="offer-card" id="openingOfferCard">
+        <div class="offer-grid">
+          
+          <!-- Offer Image / Media -->
+          <div class="offer-visual-wrap">
+            <img 
+              id="offerBannerImg"
+              src="images/offers/launch-offer.svg" 
+              alt="عرض افتتاح Dar Elsalam Store" 
+              class="hero-main-img"
+              loading="lazy"
+            >
+          </div>
+
+          <!-- Offer Information & Countdown -->
+          <div class="offer-content">
+            <div class="offer-badge-hot">
+              <span>🔥 عرض افتتاح حصري لفترة محدودة</span>
+            </div>
+
+            <h3 class="offer-title" id="offerTitleText">باقة الافتتاح الكبرى: ساعة ذكية Ultra + AirPods Pro + شاحن 65W</h3>
+            
+            <p class="offer-description" id="offerDescriptionText">
+              احصل على أقوى مجموعة تكنولوجية متكاملة بسعر الافتتاح الاستثنائي! وفر أكثر من 35% مع ضمان حقيقي وشحن فوري لجميع المحافظات.
+            </p>
+
+            <div class="offer-price-row">
+              <span class="offer-new-price" id="offerNewPriceText">1,250 <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small></span>
+              <span class="offer-old-price" id="offerOldPriceText">1,950 ج.م</span>
+              <span class="offer-save-badge" id="offerDiscountText">وفر 700 ج.م (36%-)</span>
+            </div>
+
+            <!-- Countdown Timer Container -->
+            <div class="countdown-container" id="countdownArea">
+              <div class="countdown-label">
+                <span>⏱️ ينتهي هذا العرض خلال:</span>
+              </div>
+              <div class="countdown-timer" id="countdownTimerBox">
+                <div class="timer-box">
+                  <div class="timer-num" id="timerDays">00</div>
+                  <div class="timer-unit">الأيام</div>
+                </div>
+                <div class="timer-box">
+                  <div class="timer-num" id="timerHours">00</div>
+                  <div class="timer-unit">الساعات</div>
+                </div>
+                <div class="timer-box">
+                  <div class="timer-num" id="timerMinutes">00</div>
+                  <div class="timer-unit">الدقائق</div>
+                </div>
+                <div class="timer-box">
+                  <div class="timer-num" id="timerSeconds">00</div>
+                  <div class="timer-unit">الثواني</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notice displayed when countdown reaches 0 -->
+            <div class="offer-expired-notice" id="offerExpiredNotice">
+              <span style="font-size: 1.5rem; display: block; margin-bottom: 6px;">⏳</span>
+              <strong>انتهى العرض</strong>
+              <p style="font-size: 0.9rem; margin-top: 4px;">ترقبوا عروضنا الجديدة قريباً أو تواصلوا معنا للاستفسار عن التوفر.</p>
+            </div>
+
+            <!-- Action Buttons for Offer -->
+            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+              <a href="#shipping" class="btn btn-primary btn-offer-order" id="btnOfferOrder" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); box-shadow: var(--glow-fire);">
+                <span>اطلب عرض الافتتاح الآن</span>
+                <span>⚡</span>
+              </a>
+              <a href="https://wa.me/201008991290?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20Dar%20Elsalam%20Store%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%AD%D8%AC%D8%B2%20%D8%B9%D8%B1%D8%B6%20%D8%A7%D9%84%D8%A7%D9%81%D8%AA%D8%AA%D8%A7%D8%AD%20%D8%A7%D9%84%D8%AD%D8%B5%D8%B1%D9%8A" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+                <span>حجز سريع عبر واتساب</span>
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== SHIPPING & ORDER FORM SECTION ==================== -->
+  <section class="shipping-section" id="shipping">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag">طلب وشحن فوري</span>
+        <h2 class="section-title">الشحن داخل وخارج الإسكندرية <span class="text-gradient">🚚</span></h2>
+        <p class="section-subtitle">خدمة توصيل سريعة وموثوقة تغطي كل أحياء الإسكندرية وجميع محافظات مصر</p>
+      </div>
+
+      <div class="shipping-grid">
+        
+        <!-- Shipping Details & Guarantee Card -->
+        <div class="shipping-info-card">
+          <h3 class="shipping-info-title">كيف تتم معالجة وشحن طلبك؟</h3>
+          <p class="shipping-info-desc">
+            في Dar Elsalam Store نحرص على توصيل منتجاتك في أسرع وقت مع تغليف آمن وضمان الفحص عند الاستلام.
+          </p>
+
+          <div class="shipping-steps-list">
+            <div class="shipping-step-item">
+              <div class="step-number">1</div>
+              <div class="step-details">
+                <h4>داخل الإسكندرية</h4>
+                <p>توصيل في نفس اليوم أو خلال 24 ساعة عبر مندوب المتجر المباشر مع إمكانية تجربة المنتج قبل الدفع.</p>
+              </div>
+            </div>
+
+            <div class="shipping-step-item">
+              <div class="step-number">2</div>
+              <div class="step-details">
+                <h4>جميع محافظات مصر</h4>
+                <p>شحن سريع خلال 48 إلى 72 ساعة لجميع المحافظات (القاهرة، الجيزة، الدلتا، الصعيد، والقناة) عبر شركات الشحن المعتمدة.</p>
+              </div>
+            </div>
+
+            <div class="shipping-step-item">
+              <div class="step-number">3</div>
+              <div class="step-details">
+                <h4>خدمة استلام وتسليم الصيانة</h4>
+                <p>نوفر خدمة استلام الموبايل من موقعك في الإسكندرية لصيانته وإعادته إليك جاهزاً مع فاتورة وضمان معتمد.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 30px; padding: 18px; border-radius: var(--radius-md); background: rgba(0, 229, 255, 0.06); border: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span style="font-size: 1.3rem;">🛡️</span>
+              <strong style="color: var(--accent-cyan);">ضمان المتجر الذهبي</strong>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+              كل منتج يخرج من المتجر يتم اختباره بعناية ومرفق معه فاتورة وضمان ضد عيوب الصناعة.
+            </p>
+          </div>
+        </div>
+
+        <!-- Professional Order Form -->
+        <div class="order-form-card">
+          <h3 class="form-header-title">نموذج تأكيد الطلب والشحن</h3>
+          <p class="form-header-subtitle">املأ البيانات أدناه لإرسال طلبك فوراً أو إرساله مباشرة عبر الواتساب</p>
+
+          <form id="orderForm" class="order-form" novalidate>
+            
+            <!-- Full Name (Required) -->
+            <div class="form-group" id="groupFullName">
+              <label for="orderFullName" class="form-label">
+                <span>الاسم الكامل</span>
+                <span class="required-star">*</span>
+              </label>
+              <input type="text" id="orderFullName" class="form-input" placeholder="اكتب اسمك الثلاثي أو الثنائي" required>
+              <span class="form-error-msg">من فضلك أدخل الاسم الكامل</span>
+            </div>
+
+            <!-- Phone Number (Required) -->
+            <div class="form-group" id="groupPhone">
+              <label for="orderPhone" class="form-label">
+                <span>رقم الهاتف</span>
+                <span class="required-star">*</span>
+              </label>
+              <input type="tel" id="orderPhone" class="form-input" placeholder="01008991290" dir="ltr" style="text-align: right;" required>
+              <span class="form-error-msg">من فضلك أدخل رقم هاتف صحيح (مثال: 01008991290)</span>
+            </div>
+
+            <!-- Requested Product (Required) -->
+            <div class="form-group full-width" id="groupProduct">
+              <label for="orderProduct" class="form-label">
+                <span>المنتج أو الخدمة المطلوبة</span>
+                <span class="required-star">*</span>
+              </label>
+              <input type="text" id="orderProduct" class="form-input" placeholder="اسم المنتج أو وصف الصيانة المطلوبة (أو اختر من الكتالوج)" required>
+              <span class="form-error-msg">من فضلك حدد المنتج المطلوب</span>
+            </div>
+
+            <!-- Quantity -->
+            <div class="form-group" id="groupQuantity">
+              <label for="orderQuantity" class="form-label">
+                <span>الكمية</span>
+              </label>
+              <input type="number" id="orderQuantity" class="form-input" value="1" min="1" max="50">
+            </div>
+
+            <!-- Governorate -->
+            <div class="form-group" id="groupGov">
+              <label for="orderGovernorate" class="form-label">
+                <span>المحافظة</span>
+              </label>
+              <select id="orderGovernorate" class="form-select">
+                <option value="الإسكندرية" selected>الإسكندرية</option>
+                <option value="القاهرة">القاهرة</option>
+                <option value="الجيزة">الجيزة</option>
+                <option value="البحيرة">البحيرة</option>
+                <option value="الغربية">الغربية</option>
+                <option value="الدقهلية">الدقهلية</option>
+                <option value="الشرقية">الشرقية</option>
+                <option value="المنوفية">المنوفية</option>
+                <option value="القليوبية">القليوبية</option>
+                <option value="كفر الشيخ">كفر الشيخ</option>
+                <option value="دمياط">دمياط</option>
+                <option value="بورسعيد">بورسعيد</option>
+                <option value="الإسماعيلية">الإسماعيلية</option>
+                <option value="السويس">السويس</option>
+                <option value="شمال سيناء">شمال سيناء</option>
+                <option value="جنوب سيناء">جنوب سيناء</option>
+                <option value="مطروح">مطروح</option>
+                <option value="البحر الأحمر">البحر الأحمر</option>
+                <option value="الوادي الجديد">الوادي الجديد</option>
+                <option value="أسيوط">أسيوط</option>
+                <option value="سوهاج">سوهاج</option>
+                <option value="قنا">قنا</option>
+                <option value="الأقصر">الأقصر</option>
+                <option value="أسوان">أسوان</option>
+                <option value="بني سويف">بني سويف</option>
+                <option value="الفيوم">الفيوم</option>
+                <option value="المنيا">المنيا</option>
+              </select>
+            </div>
+
+            <!-- Detailed Address -->
+            <div class="form-group full-width" id="groupAddress">
+              <label for="orderAddress" class="form-label">
+                <span>العنوان بالتفصيل</span>
+              </label>
+              <input type="text" id="orderAddress" class="form-input" placeholder="المنطقة، اسم الشارع، رقم العقار">
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="form-group full-width" id="groupNotes">
+              <label for="orderNotes" class="form-label">
+                <span>ملاحظات إضافية (اختياري)</span>
+              </label>
+              <textarea id="orderNotes" class="form-textarea" placeholder="أي تفاصيل خاصة باللون، الموديل، وقت التوصيل المفضل أو مشكلة الصيانة..."></textarea>
+            </div>
+
+            <!-- Submit Action Buttons -->
+            <div class="form-submit-row">
+              <button type="button" id="btnSubmitWhatsApp" class="btn btn-whatsapp btn-form-whatsapp">
+                <span>طلب فوري ومباشر عبر واتساب (01008991290)</span>
+                <span>💬</span>
+              </button>
+              
+              <button type="submit" id="btnSubmitLocal" class="btn btn-secondary">
+                <span>تسجيل الطلب في الموقع</span>
+                <span>✓</span>
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT & SOCIAL LINKS SECTION ==================== -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      
+      <div class="section-header">
+        <span class="section-tag">قنوات التواصل</span>
+        <h2 class="section-title">تواصل مع <span class="text-gradient">Dar Elsalam Store</span></h2>
+        <p class="section-subtitle">نحن دائماً في خدمتك للرد على استفسارات الصيانة، الأسعار، وتأكيد طلبات الشحن</p>
+      </div>
+
+      <div class="contact-grid">
+        
+        <!-- Phone & WhatsApp Card -->
+        <div class="contact-card whatsapp-card">
+          <div class="contact-icon-circle whatsapp-icon-bg">📞</div>
+          <h3 class="contact-platform">الهاتف والواتساب</h3>
+          <p class="contact-handle">01008991290</p>
+          <div style="display: flex; gap: 8px; margin-top: auto; width: 100%;">
+            <a href="tel:01008991290" class="contact-action-btn" style="flex: 1;">اتصال هاتف</a>
+            <a href="https://wa.me/201008991290" target="_blank" rel="noopener noreferrer" class="contact-action-btn" style="flex: 1; background: #25d366; color: #fff; border-color: #25d366;">محادثة واتس</a>
+          </div>
+        </div>
+
+        <!-- Facebook Card -->
+        <div class="contact-card facebook-card">
+          <div class="contact-icon-circle facebook-icon-bg">📘</div>
+          <h3 class="contact-platform">فيسبوك</h3>
+          <p class="contact-handle">Dar Elsalam Store</p>
+          <a href="https://www.facebook.com/share/1CyNiEFztG/" target="_blank" rel="noopener noreferrer" class="contact-action-btn">
+            زيارة الصفحة الرسمية ↗
+          </a>
+        </div>
+
+        <!-- TikTok Card -->
+        <div class="contact-card tiktok-card">
+          <div class="contact-icon-circle tiktok-icon-bg">🎵</div>
+          <h3 class="contact-platform">تيك توك</h3>
+          <p class="contact-handle">@dar.elsalam.store</p>
+          <a href="https://www.tiktok.com/@dar.elsalam.store" target="_blank" rel="noopener noreferrer" class="contact-action-btn">
+            متابعة الفيديوهات ↗
+          </a>
+        </div>
+
+        <!-- Instagram Card -->
+        <div class="contact-card instagram-card">
+          <div class="contact-icon-circle instagram-icon-bg">📷</div>
+          <h3 class="contact-platform">إنستغرام</h3>
+          <p class="contact-handle">@darre_lsalamstore</p>
+          <a href="https://www.instagram.com/darre_lsalamstore?utm_source=qr&amp;stkn=aDl4OXQ3eTl4a20=" target="_blank" rel="noopener noreferrer" class="contact-action-btn">
+            مشاهدة الستوري ↗
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="site-footer">
+    <div class="container">
+      
+      <div class="footer-top">
+        
+        <!-- Brand Summary Column -->
+        <div>
+          <div class="brand-logo">
+            <img src="images/logo-square.jpg" alt="Dar Elsalam Store Logo" class="brand-logo-img">
+            <div class="brand-text">
+              <span class="brand-title">Dar Elsalam Store</span>
+              <span class="brand-subtitle">MOBILE &amp; ELECTRONICS</span>
+            </div>
+          </div>
+          <p class="footer-brand-desc">
+            "صيانة موبايلات • إكسسوارات • سماعات • AirPods • Smart Watches • منتجات إلكترونية"
+          </p>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 10px;">
+            الإسكندرية، مصر — شحن وتوصيل لجميع المحافظات.
+          </p>
+        </div>
+
+        <!-- Quick Links Column -->
+        <div>
+          <h4 class="footer-col-title">روابط سريعة</h4>
+          <ul class="footer-links">
+            <li><a href="#hero" class="footer-link">الرئيسية</a></li>
+            <li><a href="#products" class="footer-link">المنتجات</a></li>
+            <li><a href="#offers" class="footer-link">عروض الافتتاح 🔥</a></li>
+            <li><a href="#shipping" class="footer-link">الشحن داخل وخارج الإسكندرية</a></li>
+            <li><a href="#about" class="footer-link">عن المتجر</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact & Social Column -->
+        <div>
+          <h4 class="footer-col-title">تواصل مباشر</h4>
+          <ul class="footer-links">
+            <li><a href="tel:01008991290" class="footer-link">📞 الهاتف: 01008991290</a></li>
+            <li><a href="https://wa.me/201008991290" target="_blank" rel="noopener noreferrer" class="footer-link">💬 واتساب: 01008991290</a></li>
+          </ul>
+          <div class="footer-social-icons">
+            <a href="https://www.facebook.com/share/1CyNiEFztG/" target="_blank" rel="noopener noreferrer" class="social-icon-btn" title="Facebook" aria-label="فيسبوك">📘</a>
+            <a href="https://www.tiktok.com/@dar.elsalam.store" target="_blank" rel="noopener noreferrer" class="social-icon-btn" title="TikTok" aria-label="تيك توك">🎵</a>
+            <a href="https://www.instagram.com/darre_lsalamstore?utm_source=qr&amp;stkn=aDl4OXQ3eTl4a20=" target="_blank" rel="noopener noreferrer" class="social-icon-btn" title="Instagram" aria-label="إنستغرام">📷</a>
+            <a href="https://wa.me/201008991290" target="_blank" rel="noopener noreferrer" class="social-icon-btn" title="WhatsApp" aria-label="واتساب">💬</a>
+          </div>
+          <div style="margin-top: 18px;">
+            <a href="admin.html" class="admin-shortcut-btn" title="لوحة التحكم">⚙️ لوحة تحكم المتجر (Admin)</a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Credits -->
+      <div class="footer-bottom">
+        <div class="footer-copy">
+          &copy; <span id="currentYear"></span> <strong>Dar Elsalam Store</strong>. جميع الحقوق محفوظة.
+        </div>
+        <div class="footer-credit">
+          <span>تم إنشاء هذا الموقع من خلال <strong>Eng/ Mohaned Halim</strong></span>
+          <span class="dev-contact-badge">
+            <span>📞 للتواصل:</span>
+            <a href="tel:01220702077" class="dev-phone-link" dir="ltr" title="اتصال مباشر">01220702077</a>
+            <span>|</span>
+            <a href="https://wa.me/201220702077" target="_blank" rel="noopener noreferrer" class="dev-wa-link" title="محادثة واتساب مباشرة">واتساب 💬</a>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ==================== PRODUCT DETAILS MODAL ==================== -->
+  <div class="modal-backdrop" id="productModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-container">
+      <button class="modal-close-btn" id="modalCloseBtn" aria-label="إغلاق النافذة">✕</button>
+      <div class="modal-body">
+        
+        <!-- Modal Image Container -->
+        <div class="modal-img-wrap">
+          <img id="modalProductImg" src="" alt="صورة المنتج" class="modal-img">
+        </div>
+
+        <!-- Modal Details Info -->
+        <div class="modal-details">
+          <span class="modal-category" id="modalProductCategory">التصنيف</span>
+          <h3 class="modal-title" id="modalProductName">اسم المنتج</h3>
+
+          <div class="modal-price-row">
+            <span class="modal-price" id="modalProductPrice">0 ج.م</span>
+            <span class="modal-old-price" id="modalProductOldPrice"></span>
+            <span class="badge-stock in-stock" id="modalProductStock">متوفر في المتجر</span>
+          </div>
+
+          <p class="modal-description" id="modalProductDescription">وصف المنتج الكامل...</p>
+
+          <h4 class="modal-spec-title">أبرز المواصفات والمميزات:</h4>
+          <ul class="modal-features-list" id="modalProductFeatures">
+            <!-- Populated dynamically via JS -->
+          </ul>
+
+          <div class="modal-actions">
+            <button class="btn btn-whatsapp" id="modalOrderWhatsAppBtn" style="width: 100%;">
+              <span>اطلب هذا المنتج عبر واتساب</span>
+              <span>💬</span>
+            </button>
+            <button class="btn btn-secondary" id="modalFillFormBtn" style="width: 100%;">
+              <span>الانتقال لنموذج الشحن السريع</span>
+              <span>🚚</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== QR CODE MODAL ==================== -->
+  <div class="modal-backdrop" id="qrModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-container qr-modal-container">
+      <button class="modal-close-btn" id="qrModalCloseBtn" aria-label="إغلاق النافذة">✕</button>
+      <div class="qr-modal-body">
+        
+        <div class="qr-header">
+          <img src="images/logo-square.jpg" alt="Logo" class="brand-logo-img" style="width: 54px; height: 54px; margin: 0 auto 12px; display: block;">
+          <h3 class="qr-title">رمز QR لموقع Dar Elsalam Store</h3>
+          <p class="qr-subtitle">امسح الرمز بكاميرا هاتفك لفتح المتجر مباشرة ومشاركته</p>
+        </div>
+
+        <div class="qr-box-wrapper">
+          <div class="qr-image-frame">
+            <img src="images/qr-code.png" alt="QR Code لموقع متجر دار السلام" class="qr-code-img" id="qrCodeImg">
+          </div>
+          <div class="qr-link-container">
+            <span class="qr-link-text" id="qrLinkText">https://dar-elsalam-store.firebaseapp.com</span>
+            <button type="button" class="btn-copy-link" id="btnCopySiteUrl" title="نسخ الرابط">
+              <span id="copyBtnText">📋 نسخ</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="qr-modal-actions">
+          <button type="button" class="btn btn-whatsapp" id="btnShareQrWhatsApp" style="width: 100%;">
+            <span>مشاركة الرابط عبر واتساب 💬</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FLOATING QUICK BUTTONS ==================== -->
+  <div class="floating-actions">
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/201008991290" target="_blank" rel="noopener noreferrer" class="floating-btn btn-float-whatsapp" title="تواصل عبر الواتساب" aria-label="واتساب">
+      💬
+    </a>
+    <!-- Scroll To Top Button -->
+    <button class="floating-btn btn-scroll-top" id="scrollTopBtn" title="العودة لأعلى الصفحة" aria-label="لأعلى الصفحة">
+      ↑
+    </button>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase SDK & Analytics Initialization -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_k8ooUm7P69yvvqvsluRiUcq0jUR7HMc",
+      authDomain: "dar-elsalam-store.firebaseapp.com",
+      projectId: "dar-elsalam-store",
+      storageBucket: "dar-elsalam-store.firebasestorage.app",
+      messagingSenderId: "95713594592",
+      appId: "1:95713594592:web:2180d85049ad33b9db5485",
+      measurementId: "G-XCPKGNKGT5"
+    };
+
+    // Initialize Firebase
+    try {
+      const app = initializeApp(firebaseConfig);
+      window.firebaseApp = app;
+
+      isSupported().then(supported => {
+        if (supported) {
+          const analytics = getAnalytics(app);
+          window.firebaseAnalytics = analytics;
+          console.log("Firebase Analytics initialized successfully.");
+        }
+      }).catch(err => {
+        console.warn("Firebase Analytics check:", err);
+      });
+    } catch (e) {
+      console.warn("Firebase initialization warning:", e);
+    }
+  </script>
+
+  <!-- Main JavaScript File -->
+  <script src="script.js"></script>
+</body>
+</html>
