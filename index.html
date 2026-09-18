@@ -1184,6 +1184,196 @@
       margin-bottom: 20px;
     }
 
+    /* ==================== MULTI-OFFERS GRID ==================== */
+    .offers-multi-container {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .offer-card-multi {
+      background: linear-gradient(135deg, rgba(14, 23, 44, 0.92) 0%, rgba(20, 10, 30, 0.9) 100%);
+      border: 1px solid rgba(255, 65, 108, 0.3);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 0;
+      transition: var(--transition);
+      box-shadow: 0 8px 32px rgba(255, 65, 108, 0.12);
+      position: relative;
+    }
+
+    .offer-card-multi:hover {
+      border-color: rgba(255, 65, 108, 0.6);
+      box-shadow: 0 12px 40px rgba(255, 65, 108, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .offer-card-multi-img-wrap {
+      background: rgba(6, 9, 19, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      min-height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .offer-card-multi-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(255, 65, 108, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .offer-card-multi-img {
+      max-width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      transition: transform 0.4s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .offer-card-multi:hover .offer-card-multi-img {
+      transform: scale(1.06);
+    }
+
+    .offer-card-multi-content {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .offer-multi-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(255, 65, 108, 0.2), rgba(255, 75, 43, 0.15));
+      border: 1px solid rgba(255, 65, 108, 0.4);
+      color: #ff6b81;
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 800;
+      width: fit-content;
+    }
+
+    .offer-multi-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .offer-multi-price-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .offer-multi-new-price {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ff6b81;
+    }
+
+    .offer-multi-old-price {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .offer-multi-discount-badge {
+      background: rgba(255, 75, 43, 0.15);
+      border: 1px solid rgba(255, 75, 43, 0.4);
+      color: #ff6b81;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .offer-multi-countdown {
+      background: rgba(6, 9, 19, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+    }
+
+    .offer-multi-countdown-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .offer-multi-timer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+
+    .offer-multi-timer-box {
+      background: rgba(14, 23, 44, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .offer-multi-timer-num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      line-height: 1;
+    }
+
+    .offer-multi-timer-unit {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .offer-multi-expired {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .offer-multi-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .offer-card-multi {
+        grid-template-columns: 1fr;
+      }
+      .offer-card-multi-img-wrap {
+        min-height: 200px;
+      }
+      .offer-card-multi-content {
+        padding: 20px;
+      }
+      .offer-multi-new-price {
+        font-size: 1.6rem;
+      }
+    }
+
     /* ==================== SHIPPING & ORDER FORM ==================== */
     .shipping-grid {
       display: grid;
@@ -1955,6 +2145,772 @@
         display: none;
       }
     }
+
+    /* ==========================================================================
+       SHOPPING CART, INSTAPAY & CHECKOUT ENHANCED STYLES
+       ========================================================================== */
+
+    /* Navbar Cart Button */
+    .btn-nav-cart {
+      position: relative;
+      background: rgba(0, 229, 255, 0.08);
+      border: 1.5px solid var(--accent-cyan);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+    }
+
+    .btn-nav-cart:hover {
+      background: rgba(0, 229, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .cart-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -7px;
+      left: -7px;
+      background: linear-gradient(135deg, #00e5ff 0%, #2563eb 100%);
+      color: #030712;
+      font-size: 0.75rem;
+      font-weight: 900;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      border: 2px solid #060913;
+      box-shadow: 0 2px 8px rgba(0, 229, 255, 0.6);
+      transition: transform 0.2s ease;
+    }
+
+    .mobile-cart-badge {
+      background: var(--accent-cyan);
+      color: #030712;
+      font-weight: 900;
+      font-size: 0.78rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-right: 8px;
+    }
+
+    .badge-bounce {
+      animation: badgeBounceAnim 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes badgeBounceAnim {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.45); }
+    }
+
+    .btn-added-pop {
+      animation: btnPopAnim 0.35s ease-out;
+    }
+
+    @keyframes btnPopAnim {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.92); }
+    }
+
+    /* Product Card Cart Button */
+    .btn-product-cart {
+      flex: 1.2;
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+      border: 1px solid var(--accent-cyan);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-product-cart:hover {
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
+      color: #030712;
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Cart Sliding Drawer */
+    .cart-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1090;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .cart-drawer-overlay.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 420px;
+      max-width: 92vw;
+      height: 100vh;
+      background: #080d1c;
+      border-left: 1px solid var(--border-subtle);
+      box-shadow: -15px 0 45px rgba(0, 0, 0, 0.85);
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .cart-drawer.open {
+      transform: translateX(0);
+    }
+
+    .cart-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(11, 20, 38, 0.7);
+    }
+
+    .cart-header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cart-header-icon {
+      font-size: 1.4rem;
+    }
+
+    .cart-header-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .btn-cart-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .btn-cart-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fff;
+      transform: rotate(90deg);
+    }
+
+    .cart-items-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cart-item-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(14, 23, 44, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      position: relative;
+      transition: border-color 0.2s ease;
+    }
+
+    .cart-item-card:hover {
+      border-color: rgba(0, 229, 255, 0.4);
+    }
+
+    .cart-item-img {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: #060913;
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .cart-item-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cart-item-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cart-item-price-unit {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .cart-item-qty-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cart-qty-ctrl {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .btn-qty-dec, .btn-qty-inc {
+      width: 28px;
+      height: 26px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .btn-qty-dec:hover, .btn-qty-inc:hover {
+      background: rgba(0, 229, 255, 0.2);
+      color: var(--accent-cyan);
+    }
+
+    .cart-qty-num {
+      width: 26px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+    }
+
+    .cart-item-total-price {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .btn-cart-remove {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 4px;
+      align-self: flex-start;
+      transition: color 0.2s;
+    }
+
+    .btn-cart-remove:hover {
+      color: #ef4444;
+    }
+
+    .cart-empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .cart-empty-icon {
+      font-size: 3.5rem;
+      display: block;
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+
+    .cart-empty-state h4 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .cart-empty-state p {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .cart-drawer-footer {
+      padding: 20px;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(6, 9, 19, 0.95);
+    }
+
+    .cart-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .cart-summary-label {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .cart-summary-value {
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--accent-cyan);
+    }
+
+    .cart-shipping-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .btn-checkout-action {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
+      color: #030712;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 13px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0, 229, 255, 0.35);
+      transition: var(--transition);
+      margin-bottom: 10px;
+    }
+
+    .btn-checkout-action:hover {
+      box-shadow: 0 6px 28px rgba(0, 229, 255, 0.55);
+      transform: translateY(-2px);
+      color: #030712;
+    }
+
+    .btn-clear-cart {
+      width: 100%;
+      background: transparent;
+      border: 1px dashed rgba(239, 68, 68, 0.35);
+      color: #f87171;
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-clear-cart:hover {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: #ef4444;
+    }
+
+    /* Checkout & InstaPay Form Elements */
+    .checkout-header-badge {
+      display: inline-block;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .checkout-cart-summary {
+      background: rgba(11, 20, 38, 0.65);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .checkout-summary-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 10px;
+    }
+
+    .checkout-summary-head h4 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .btn-modify-cart {
+      background: transparent;
+      border: none;
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-modify-cart:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    .checkout-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .checkout-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      padding: 4px 0;
+    }
+
+    .checkout-item-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .checkout-item-qty-pill {
+      background: rgba(0, 229, 255, 0.14);
+      color: var(--accent-cyan);
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+
+    .checkout-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-primary);
+    }
+
+    .checkout-item-subtotal {
+      font-weight: 700;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .checkout-empty-cart-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: #fde68a;
+    }
+
+    .checkout-financial-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin: 10px 0 20px 0;
+    }
+
+    .financial-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    .financial-row.grand-total-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      margin-top: 10px;
+      padding-top: 10px;
+      font-size: 1.25rem;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .financial-row.grand-total-row strong {
+      color: var(--accent-cyan);
+      font-size: 1.4rem;
+    }
+
+    /* InstaPay Payment Box */
+    .instapay-payment-box {
+      background: linear-gradient(135deg, rgba(11, 20, 38, 0.95) 0%, rgba(18, 30, 56, 0.9) 100%);
+      border: 1.5px solid rgba(0, 229, 255, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.12);
+    }
+
+    .instapay-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .instapay-logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .instapay-icon {
+      font-size: 1.3rem;
+      color: var(--accent-cyan);
+    }
+
+    .instapay-status-tag {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #34d399;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .instapay-warning-alert {
+      display: flex;
+      gap: 10px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 18px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #fde68a;
+    }
+
+    .instapay-account-details {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .account-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .account-number-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .account-number {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      font-family: monospace;
+      direction: ltr;
+    }
+
+    .btn-copy-instapay {
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
+      color: #030712;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-copy-instapay:hover {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-copy-instapay.copied {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+    }
+
+    /* Receipt Upload Dropzone */
+    .receipt-dropzone {
+      border: 2px dashed rgba(0, 229, 255, 0.4);
+      border-radius: var(--radius-md);
+      padding: 22px 16px;
+      text-align: center;
+      background: rgba(0, 229, 255, 0.03);
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .receipt-dropzone:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.08);
+    }
+
+    .receipt-file-input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .dropzone-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dropzone-icon {
+      font-size: 2.2rem;
+    }
+
+    .dropzone-text {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .dropzone-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .receipt-preview-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .receipt-preview-box img {
+      max-width: 220px;
+      max-height: 190px;
+      object-fit: contain;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--accent-cyan);
+      box-shadow: 0 4px 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .receipt-preview-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .receipt-file-name {
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    .btn-remove-receipt {
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-remove-receipt:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .btn-checkout-submit {
+      flex: 1.4;
+      padding: 14px 28px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -1990,13 +2946,13 @@
             <!-- Floating Nav Dropdown for Instant QR Viewing -->
             <div class="nav-qr-dropdown" id="navQrDropdown">
               <div class="nav-qr-frame">
-                <img src="images/qr-code.png" alt="QR Code لموقع متجر دار السلام" class="nav-qr-img">
+                <div id="qrNav" class="nav-qr-img"></div>
               </div>
               <div class="nav-qr-caption">امسح الرمز لفتح المتجر</div>
-              <div class="nav-qr-url">dar-elsalam-store.firebaseapp.com</div>
+              <div class="nav-qr-url">mohanedhalim42-star.github.io/MohanedMohamed</div>
               <div class="nav-qr-btns">
                 <button type="button" class="btn-qr-dropdown-copy" id="btnCopyDropdown">📋 نسخ</button>
-                <a href="https://wa.me/?text=https%3A%2F%2Fdar-elsalam-store.firebaseapp.com" target="_blank" rel="noopener noreferrer" class="btn-qr-dropdown-wa">واتساب</a>
+                <a href="https://wa.me/?text=https%3A%2F%2Fmohanedhalim42-star.github.io%2FMohanedMohamed%2F" target="_blank" rel="noopener noreferrer" class="btn-qr-dropdown-wa">واتساب</a>
               </div>
             </div>
           </li>
@@ -2005,6 +2961,10 @@
 
       <!-- Nav Call to Action & Hamburger -->
       <div class="nav-actions">
+        <button type="button" class="btn-nav-cart" id="openCartBtn" title="عربة التسوق" aria-label="عرض عربة التسوق">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-badge" id="cartCountBadge">0</span>
+        </button>
         <button type="button" class="btn-nav-qr-icon" id="openQrBtnHeader" title="رمز QR لرابط المتجر" aria-label="رمز QR">
           <span>📱 QR</span>
         </button>
@@ -2035,10 +2995,16 @@
     </div>
     
     <ul class="mobile-nav-list">
+      <li>
+        <button type="button" class="mobile-nav-link mobile-cart-trigger" id="openCartMobileBtn">
+          <span>🛒 عربة التسوق</span>
+          <span class="mobile-cart-badge" id="cartCountMobileBadge">0</span>
+        </button>
+      </li>
       <li><a href="#hero" class="mobile-nav-link active">🏠 الرئيسية</a></li>
       <li><a href="#products" class="mobile-nav-link">📱 منتجات Dar Elsalam Store</a></li>
       <li><a href="#offers" class="mobile-nav-link">🔥 عروض الافتتاح</a></li>
-      <li><a href="#shipping" class="mobile-nav-link">🚚 الشحن داخل وخارج الإسكندرية</a></li>
+      <li><a href="#shipping" class="mobile-nav-link">🚚 الشحن وإتمام الطلب</a></li>
       <li><a href="#about" class="mobile-nav-link">ℹ️ عن المتجر</a></li>
       <li><a href="#contact" class="mobile-nav-link">💬 تواصل معنا</a></li>
       
@@ -2050,9 +3016,9 @@
             <button type="button" class="btn-copy-mobile-qr-badge" id="btnCopyMobileQr">📋 نسخ الرابط</button>
           </div>
           <div class="mobile-qr-img-wrap">
-            <img src="images/qr-code.png" alt="QR Code لموقع متجر دار السلام" class="mobile-qr-img">
+            <div id="qrMobile" class="mobile-qr-img"></div>
           </div>
-          <div class="mobile-qr-url">dar-elsalam-store.firebaseapp.com</div>
+          <div class="mobile-qr-url">mohanedhalim42-star.github.io/MohanedMohamed</div>
         </div>
       </li>
       <li><a href="admin.html" class="mobile-nav-link" style="color: var(--accent-cyan); font-weight: 700;">⚙️ لوحة تحكم المتجر (Admin)</a></li>
@@ -2065,6 +3031,41 @@
       <a href="tel:01008991290" class="btn btn-secondary" style="width: 100%;">
         <span>📞 01008991290</span>
       </a>
+    </div>
+  </aside>
+
+  <!-- ==================== SHOPPING CART DRAWER ==================== -->
+  <div class="cart-drawer-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="عربة التسوق">
+    <div class="cart-drawer-header">
+      <div class="cart-header-title-wrap">
+        <span class="cart-header-icon">🛒</span>
+        <h3 class="cart-header-title">عربة التسوق (<span id="cartDrawerCount">0</span>)</h3>
+      </div>
+      <button type="button" class="btn-cart-close" id="closeCartBtn" aria-label="إغلاق العربة">✕</button>
+    </div>
+
+    <!-- Items Container -->
+    <div class="cart-items-container" id="cartItemsContainer">
+      <!-- Populated via script.js -->
+    </div>
+
+    <!-- Cart Footer with Subtotal & Checkout CTA -->
+    <div class="cart-drawer-footer" id="cartDrawerFooter">
+      <div class="cart-summary-row">
+        <span class="cart-summary-label">إجمالي المنتجات:</span>
+        <span class="cart-summary-value" id="cartSubtotal">0 ج.م</span>
+      </div>
+      <p class="cart-shipping-hint">💡 تكلفة الشحن تُحسب حسب محافظتك في نموذج إتمام الطلب</p>
+      <div class="cart-footer-actions">
+        <a href="#shipping" class="btn btn-checkout-action" id="btnProceedCheckout">
+          <span>متابعة إتمام الشراء والدفع</span>
+          <span>←</span>
+        </a>
+        <button type="button" class="btn btn-clear-cart" id="btnClearCart">
+          <span>تفريغ السلة 🗑️</span>
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -2279,84 +3280,17 @@
         <p class="section-subtitle">اغتنم عروض تدشين متجر Dar Elsalam Store بأسعار لا تقبل المنافسة ولفترة محدودة جداً</p>
       </div>
 
-      <!-- Live Opening Offer Card -->
-      <div class="offer-card" id="openingOfferCard">
-        <div class="offer-grid">
-          
-          <!-- Offer Image / Media -->
-          <div class="offer-visual-wrap">
-            <img 
-              id="offerBannerImg"
-              src="images/offers/launch-offer.svg" 
-              alt="عرض افتتاح Dar Elsalam Store" 
-              class="hero-main-img"
-              loading="lazy"
-            >
-          </div>
-
-          <!-- Offer Information & Countdown -->
-          <div class="offer-content">
-            <div class="offer-badge-hot">
-              <span>🔥 عرض افتتاح حصري لفترة محدودة</span>
-            </div>
-
-            <h3 class="offer-title" id="offerTitleText">باقة الافتتاح الكبرى: ساعة ذكية Ultra + AirPods Pro + شاحن 65W</h3>
-            
-            <p class="offer-description" id="offerDescriptionText">
-              احصل على أقوى مجموعة تكنولوجية متكاملة بسعر الافتتاح الاستثنائي! وفر أكثر من 35% مع ضمان حقيقي وشحن فوري لجميع المحافظات.
-            </p>
-
-            <div class="offer-price-row">
-              <span class="offer-new-price" id="offerNewPriceText">1,250 <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small></span>
-              <span class="offer-old-price" id="offerOldPriceText">1,950 ج.م</span>
-              <span class="offer-save-badge" id="offerDiscountText">وفر 700 ج.م (36%-)</span>
-            </div>
-
-            <!-- Countdown Timer Container -->
-            <div class="countdown-container" id="countdownArea">
-              <div class="countdown-label">
-                <span>⏱️ ينتهي هذا العرض خلال:</span>
-              </div>
-              <div class="countdown-timer" id="countdownTimerBox">
-                <div class="timer-box">
-                  <div class="timer-num" id="timerDays">00</div>
-                  <div class="timer-unit">الأيام</div>
-                </div>
-                <div class="timer-box">
-                  <div class="timer-num" id="timerHours">00</div>
-                  <div class="timer-unit">الساعات</div>
-                </div>
-                <div class="timer-box">
-                  <div class="timer-num" id="timerMinutes">00</div>
-                  <div class="timer-unit">الدقائق</div>
-                </div>
-                <div class="timer-box">
-                  <div class="timer-num" id="timerSeconds">00</div>
-                  <div class="timer-unit">الثواني</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Notice displayed when countdown reaches 0 -->
-            <div class="offer-expired-notice" id="offerExpiredNotice">
-              <span style="font-size: 1.5rem; display: block; margin-bottom: 6px;">⏳</span>
-              <strong>انتهى العرض</strong>
-              <p style="font-size: 0.9rem; margin-top: 4px;">ترقبوا عروضنا الجديدة قريباً أو تواصلوا معنا للاستفسار عن التوفر.</p>
-            </div>
-
-            <!-- Action Buttons for Offer -->
-            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-              <a href="#shipping" class="btn btn-primary btn-offer-order" id="btnOfferOrder" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); box-shadow: var(--glow-fire);">
-                <span>اطلب عرض الافتتاح الآن</span>
-                <span>⚡</span>
-              </a>
-              <a href="https://wa.me/201008991290?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%20Dar%20Elsalam%20Store%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%AD%D8%AC%D8%B2%20%D8%B9%D8%B1%D8%B6%20%D8%A7%D9%84%D8%A7%D9%81%D8%AA%D8%AA%D8%A7%D8%AD%20%D8%A7%D9%84%D8%AD%D8%B5%D8%B1%D9%8A" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
-                <span>حجز سريع عبر واتساب</span>
-              </a>
-            </div>
-
-          </div>
-
+      <!-- Multi-Offer Dynamic Container (populated by script.js via Firestore onSnapshot) -->
+      <div id="offersContainer" class="offers-multi-container" aria-live="polite">
+        <!-- Loading state shown until Firestore responds -->
+        <div class="offers-loading-state" id="offersLoadingState" style="text-align: center; padding: 60px 20px;">
+          <div style="width: 44px; height: 44px; border: 3px solid rgba(255, 107, 129, 0.2); border-top-color: #ff6b81; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;"></div>
+          <p style="color: var(--text-secondary); font-size: 1.05rem;">جاري تحميل العروض من قاعدة البيانات...</p>
+        </div>
+        <div id="offersEmptyState" style="display: none; text-align: center; padding: 60px 20px;">
+          <div style="font-size: 3rem; margin-bottom: 12px;">🏷️</div>
+          <h3 style="color: #fff; margin-bottom: 8px;">لا توجد عروض متاحة حالياً</h3>
+          <p style="color: var(--text-muted);">ترقبوا عروضنا القادمة قريباً أو تواصلوا معنا للاستفسار.</p>
         </div>
       </div>
 
@@ -2419,14 +3353,26 @@
           </div>
         </div>
 
-        <!-- Professional Order Form -->
-        <div class="order-form-card">
+        <!-- Professional Order & Checkout Form -->
+        <div class="order-form-card" id="checkoutCard">
+          <div class="checkout-header-badge">إتمام الشراء والدفع الآمن 🔒</div>
           <h3 class="form-header-title">نموذج تأكيد الطلب والشحن</h3>
-          <p class="form-header-subtitle">املأ البيانات أدناه لإرسال طلبك فوراً أو إرساله مباشرة عبر الواتساب</p>
+          <p class="form-header-subtitle">راجع مشترياتك، سدد مصاريف الشحن عبر InstaPay، وسجل بيانات التوصيل</p>
+
+          <!-- Dynamic Cart Items Review in Checkout -->
+          <div class="checkout-cart-summary" id="checkoutCartSummary">
+            <div class="checkout-summary-head">
+              <h4>📦 محتويات طلبك (<span id="checkoutItemsCount">0</span>)</h4>
+              <button type="button" class="btn-modify-cart" id="btnEditCartFromCheckout">✏️ تعديل العربة</button>
+            </div>
+            <div class="checkout-items-list" id="checkoutItemsList">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
 
           <form id="orderForm" class="order-form" novalidate>
             
-            <!-- Full Name (Required) -->
+            <!-- Customer Full Name (Required) -->
             <div class="form-group" id="groupFullName">
               <label for="orderFullName" class="form-label">
                 <span>الاسم الكامل</span>
@@ -2439,93 +3385,169 @@
             <!-- Phone Number (Required) -->
             <div class="form-group" id="groupPhone">
               <label for="orderPhone" class="form-label">
-                <span>رقم الهاتف</span>
+                <span>رقم الهاتف (للتواصل والشحن)</span>
                 <span class="required-star">*</span>
               </label>
               <input type="tel" id="orderPhone" class="form-input" placeholder="01008991290" dir="ltr" style="text-align: right;" required>
               <span class="form-error-msg">من فضلك أدخل رقم هاتف صحيح (مثال: 01008991290)</span>
             </div>
 
-            <!-- Requested Product (Required) -->
-            <div class="form-group full-width" id="groupProduct">
+            <!-- Fallback single product field (if cart is empty) -->
+            <div class="form-group full-width" id="groupProduct" style="display: none;">
               <label for="orderProduct" class="form-label">
                 <span>المنتج أو الخدمة المطلوبة</span>
                 <span class="required-star">*</span>
               </label>
-              <input type="text" id="orderProduct" class="form-input" placeholder="اسم المنتج أو وصف الصيانة المطلوبة (أو اختر من الكتالوج)" required>
+              <input type="text" id="orderProduct" class="form-input" placeholder="اسم المنتج أو وصف الخدمة المطلوبة">
               <span class="form-error-msg">من فضلك حدد المنتج المطلوب</span>
             </div>
 
-            <!-- Quantity -->
-            <div class="form-group" id="groupQuantity">
-              <label for="orderQuantity" class="form-label">
-                <span>الكمية</span>
-              </label>
-              <input type="number" id="orderQuantity" class="form-input" value="1" min="1" max="50">
-            </div>
-
-            <!-- Governorate -->
+            <!-- Governorate Selection (Live Shipping Calculation) -->
             <div class="form-group" id="groupGov">
               <label for="orderGovernorate" class="form-label">
-                <span>المحافظة</span>
+                <span>المحافظة (لتحديد الشحن)</span>
+                <span class="required-star">*</span>
               </label>
-              <select id="orderGovernorate" class="form-select">
-                <option value="الإسكندرية" selected>الإسكندرية</option>
+              <select id="orderGovernorate" class="form-select" required>
+                <option value="الإسكندرية" selected>الإسكندرية (المقر الرئيسي)</option>
                 <option value="القاهرة">القاهرة</option>
                 <option value="الجيزة">الجيزة</option>
+                <option value="القليوبية">القليوبية</option>
                 <option value="البحيرة">البحيرة</option>
                 <option value="الغربية">الغربية</option>
-                <option value="الدقهلية">الدقهلية</option>
-                <option value="الشرقية">الشرقية</option>
                 <option value="المنوفية">المنوفية</option>
-                <option value="القليوبية">القليوبية</option>
+                <option value="الدقهلية">الدقهلية</option>
                 <option value="كفر الشيخ">كفر الشيخ</option>
+                <option value="الشرقية">الشرقية</option>
                 <option value="دمياط">دمياط</option>
                 <option value="بورسعيد">بورسعيد</option>
                 <option value="الإسماعيلية">الإسماعيلية</option>
                 <option value="السويس">السويس</option>
-                <option value="شمال سيناء">شمال سيناء</option>
-                <option value="جنوب سيناء">جنوب سيناء</option>
-                <option value="مطروح">مطروح</option>
-                <option value="البحر الأحمر">البحر الأحمر</option>
-                <option value="الوادي الجديد">الوادي الجديد</option>
+                <option value="الفيوم">الفيوم</option>
+                <option value="بني سويف">بني سويف</option>
+                <option value="المنيا">المنيا</option>
                 <option value="أسيوط">أسيوط</option>
                 <option value="سوهاج">سوهاج</option>
                 <option value="قنا">قنا</option>
                 <option value="الأقصر">الأقصر</option>
                 <option value="أسوان">أسوان</option>
-                <option value="بني سويف">بني سويف</option>
-                <option value="الفيوم">الفيوم</option>
-                <option value="المنيا">المنيا</option>
+                <option value="مطروح">مطروح</option>
+                <option value="البحر الأحمر">البحر الأحمر</option>
+                <option value="الوادي الجديد">الوادي الجديد</option>
+                <option value="شمال سيناء">شمال سيناء</option>
+                <option value="جنوب سيناء">جنوب سيناء</option>
               </select>
             </div>
 
             <!-- Detailed Address -->
-            <div class="form-group full-width" id="groupAddress">
+            <div class="form-group" id="groupAddress">
               <label for="orderAddress" class="form-label">
                 <span>العنوان بالتفصيل</span>
+                <span class="required-star">*</span>
               </label>
-              <input type="text" id="orderAddress" class="form-input" placeholder="المنطقة، اسم الشارع، رقم العقار">
+              <input type="text" id="orderAddress" class="form-input" placeholder="المنطقة، الشارع، رقم العقار، الدور" required>
+              <span class="form-error-msg">من فضلك أدخل العنوان بالتفصيل</span>
             </div>
 
             <!-- Additional Notes -->
             <div class="form-group full-width" id="groupNotes">
               <label for="orderNotes" class="form-label">
-                <span>ملاحظات إضافية (اختياري)</span>
+                <span>ملاحظات إضافية والتسليم (اختياري)</span>
               </label>
-              <textarea id="orderNotes" class="form-textarea" placeholder="أي تفاصيل خاصة باللون، الموديل، وقت التوصيل المفضل أو مشكلة الصيانة..."></textarea>
+              <textarea id="orderNotes" class="form-textarea" rows="2" placeholder="أي تفاصيل خاصة باللون، الموديل، الموعد المفضل..."></textarea>
+            </div>
+
+            <!-- LIVE FINANCIAL BREAKDOWN CARD -->
+            <div class="checkout-financial-card full-width">
+              <div class="financial-row">
+                <span>مجموع المنتجات:</span>
+                <strong id="summaryProductsTotal">0 ج.م</strong>
+              </div>
+              <div class="financial-row">
+                <span>تكلفة الشحن لـ (<span id="summaryGovName">الإسكندرية</span>):</span>
+                <strong id="summaryShippingFee" style="color: var(--accent-cyan);">40 ج.م</strong>
+              </div>
+              <div class="financial-row grand-total-row">
+                <span>الإجمالي النهائي المستحق:</span>
+                <strong id="summaryGrandTotal">40 ج.م</strong>
+              </div>
+            </div>
+
+            <!-- MANDATORY INSTAPAY PAYMENT CARD -->
+            <div class="instapay-payment-box full-width">
+              <div class="instapay-box-header">
+                <div class="instapay-logo-badge">
+                  <span class="instapay-icon">⚡</span>
+                  <strong>الدفع الإلكتروني عبر InstaPay</strong>
+                </div>
+                <span class="instapay-status-tag">حساب الدفع المعتمد</span>
+              </div>
+
+              <!-- Mandatory Prepayment Warning -->
+              <div class="instapay-warning-alert">
+                <span class="alert-icon">⚠️</span>
+                <p>
+                  <strong>تنبيه إلزامي ومهم:</strong> يتم تحويل <strong>مصاريف الشحن مسبقاً</strong> عبر تطبيق <strong>InstaPay</strong> لتأكيد جدية الطلب وحجز موعد المندوب، بينما يتم سداد <strong>ثمن المنتجات نقداً عند الاستلام والفحص</strong>.
+                </p>
+              </div>
+
+              <!-- InstaPay Transfer Info & Copy Button -->
+              <div class="instapay-account-details">
+                <div class="account-info-group">
+                  <span class="account-label">رقم التحويل المباشر في InstaPay:</span>
+                  <div class="account-number-row">
+                    <span class="account-number" id="instapayPhoneDisplay">+201210824115</span>
+                    <button type="button" class="btn-copy-instapay" id="btnCopyInstapay" title="نسخ الرقم">
+                      <span id="copyInstapayIcon">📋</span>
+                      <span id="copyInstapayText">نسخ الرقم</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Receipt Screenshot Upload -->
+              <div class="receipt-upload-section">
+                <label class="form-label" style="margin-bottom: 8px;">
+                  <span>📸 صورة إيصال التحويل (Screenshot)</span>
+                  <span class="required-star">*</span>
+                </label>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 12px;">
+                  بعد إتمام التحويل عبر تطبيق InstaPay، يرجى إرفاق لقطة شاشة للإيصال لتأكيد شحنتك فوراً.
+                </p>
+
+                <!-- Dropzone / File Picker -->
+                <div class="receipt-dropzone" id="receiptDropzone">
+                  <input type="file" id="receiptFileInput" accept="image/*" class="receipt-file-input">
+                  <div class="dropzone-content" id="dropzonePrompt">
+                    <span class="dropzone-icon">📁</span>
+                    <span class="dropzone-text">اضغط هنا لاختيار صورة الإيصال أو اسحبها هنا</span>
+                    <span class="dropzone-sub">يدعم JPG, PNG, WEBP (حجم مثالي وسريع)</span>
+                  </div>
+                  <!-- Preview Box -->
+                  <div class="receipt-preview-box" id="receiptPreviewBox" style="display: none;">
+                    <img id="receiptPreviewImg" src="" alt="معاينة إيصال التحويل">
+                    <div class="receipt-preview-actions">
+                      <span id="receiptFileNameDisplay" class="receipt-file-name"></span>
+                      <button type="button" class="btn-remove-receipt" id="btnRemoveReceipt">حذف وإعادة الرفع ✕</button>
+                    </div>
+                  </div>
+                </div>
+                <span class="form-error-msg" id="receiptErrorMsg" style="display: none; color: #ef4444; font-size: 0.85rem; margin-top: 6px;">
+                  ⚠️ يرجى إرفاق صورة إيصال تحويل InstaPay لتأكيد الطلب
+                </span>
+              </div>
             </div>
 
             <!-- Submit Action Buttons -->
-            <div class="form-submit-row">
-              <button type="button" id="btnSubmitWhatsApp" class="btn btn-whatsapp btn-form-whatsapp">
-                <span>طلب فوري ومباشر عبر واتساب (01008991290)</span>
-                <span>💬</span>
-              </button>
-              
-              <button type="submit" id="btnSubmitLocal" class="btn btn-secondary">
-                <span>تسجيل الطلب في الموقع</span>
+            <div class="form-submit-row full-width">
+              <button type="submit" id="btnSubmitLocal" class="btn btn-cyan btn-checkout-submit">
+                <span>تأكيد الطلب وإرسال إيصال التحويل</span>
                 <span>✓</span>
+              </button>
+
+              <button type="button" id="btnSubmitWhatsApp" class="btn btn-whatsapp btn-form-whatsapp">
+                <span>طلب سريع عبر واتساب (01008991290)</span>
+                <span>💬</span>
               </button>
             </div>
 
@@ -2700,12 +3722,16 @@
           </ul>
 
           <div class="modal-actions">
+            <button class="btn btn-cyan" id="modalAddToCartBtn" style="width: 100%; justify-content: center; font-size: 1.05rem;">
+              <span>أضف إلى عربة التسوق</span>
+              <span>🛒</span>
+            </button>
             <button class="btn btn-whatsapp" id="modalOrderWhatsAppBtn" style="width: 100%;">
               <span>اطلب هذا المنتج عبر واتساب</span>
               <span>💬</span>
             </button>
             <button class="btn btn-secondary" id="modalFillFormBtn" style="width: 100%;">
-              <span>الانتقال لنموذج الشحن السريع</span>
+              <span>الانتقال لنموذج الشحن والدفع</span>
               <span>🚚</span>
             </button>
           </div>
@@ -2730,10 +3756,10 @@
 
         <div class="qr-box-wrapper">
           <div class="qr-image-frame">
-            <img src="images/qr-code.png" alt="QR Code لموقع متجر دار السلام" class="qr-code-img" id="qrCodeImg">
+            <div id="qrModal_canvas"></div>
           </div>
           <div class="qr-link-container">
-            <span class="qr-link-text" id="qrLinkText">https://dar-elsalam-store.firebaseapp.com</span>
+            <span class="qr-link-text" id="qrLinkText">https://mohanedhalim42-star.github.io/MohanedMohamed/</span>
             <button type="button" class="btn-copy-link" id="btnCopySiteUrl" title="نسخ الرابط">
               <span id="copyBtnText">📋 نسخ</span>
             </button>
@@ -2775,6 +3801,7 @@
       doc, 
       onSnapshot, 
       addDoc, 
+      setDoc,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
@@ -2810,59 +3837,108 @@
       window.firebaseDb = db;
       console.log("Firebase Firestore initialized successfully.");
 
-      // 4. Real-time Synchronization for Products Catalog
+      // 4. Real-time Synchronization for Products Catalog (onSnapshot)
+      // Completely avoids LocalStorage; updates DOM directly with live Firestore stream
       const productsCollectionRef = collection(db, "products");
       onSnapshot(productsCollectionRef, (snapshot) => {
-        if (!snapshot.empty) {
-          const remoteProducts = [];
-          snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            remoteProducts.push({
-              id: data.id || docSnap.id,
-              name: data.name || '',
-              category: data.category || 'إلكترونيات',
-              image: data.image || 'images/products/phone-repair.svg',
-              price: data.price || '0',
-              oldPrice: data.oldPrice || '',
-              description: data.description || '',
-              features: Array.isArray(data.features) ? data.features : [],
-              available: data.available !== false
-            });
+        const remoteProducts = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          remoteProducts.push({
+            id: data.id || docSnap.id,
+            name: data.name || '',
+            category: data.category || 'إلكترونيات',
+            image: data.image || 'images/products/phone-repair.svg',
+            price: data.price || '0',
+            oldPrice: data.oldPrice || '',
+            description: data.description || '',
+            features: Array.isArray(data.features) ? data.features : [],
+            available: data.available !== false
           });
-          console.log(`Firestore real-time sync: Loaded ${remoteProducts.length} products.`);
-          if (window.darUpdateProductsCatalog) {
-            window.darUpdateProductsCatalog(remoteProducts);
-          }
+        });
+
+        console.log(`Firestore onSnapshot realtime sync: received ${remoteProducts.length} products.`);
+
+        // Direct DOM update strictly via onSnapshot - zero LocalStorage reliance
+        if (typeof window.darUpdateProductsCatalog === 'function') {
+          window.darUpdateProductsCatalog(remoteProducts);
+        } else {
+          // Store pending products so script.js applies them immediately upon load
+          window._pendingFirestoreProducts = remoteProducts;
         }
       }, (error) => {
-        console.warn("Firestore products onSnapshot warning:", error);
+        console.error("Firestore products onSnapshot error:", error);
+        if (typeof window.darProductsLoadError === 'function') {
+          window.darProductsLoadError(error);
+        }
       });
 
-      // 5. Real-time Synchronization for Opening Offer
-      const offerDocRef = doc(db, "settings", "offer");
-      onSnapshot(offerDocRef, (docSnap) => {
+      // 5. Real-time Synchronization for Offers Collection (multiple offers)
+      const offersCollectionRef = collection(db, "offers");
+      onSnapshot(offersCollectionRef, (snapshot) => {
+        const remoteOffers = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          remoteOffers.push({
+            id: data.id || docSnap.id,
+            title: data.title || '',
+            image: data.image || 'images/offers/launch-offer.svg',
+            newPrice: data.newPrice || '',
+            oldPrice: data.oldPrice || '',
+            expiresAt: data.expiresAt || '',
+            updatedAt: data.updatedAt || ''
+          });
+        });
+        remoteOffers.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+        console.log(`Firestore onSnapshot: received ${remoteOffers.length} offers.`);
+        if (typeof window.darUpdateOffers === 'function') {
+          window.darUpdateOffers(remoteOffers);
+        } else {
+          window._pendingFirestoreOffers = remoteOffers;
+        }
+      }, (error) => {
+        console.warn("Firestore offers onSnapshot warning:", error);
+        // On error, show empty state
+        if (typeof window.darUpdateOffers === 'function') {
+          window.darUpdateOffers([]);
+        }
+      });
+
+      // 6. Real-time Synchronization for Governorate Shipping Rates
+      const shippingRatesDocRef = doc(db, "settings", "shippingRates");
+      onSnapshot(shippingRatesDocRef, (docSnap) => {
         if (docSnap.exists()) {
-          const offerData = docSnap.data();
-          console.log("Firestore real-time sync: Opening offer updated.");
-          if (window.darUpdateOffer) {
-            window.darUpdateOffer(offerData);
+          const data = docSnap.data();
+          if (data && data.rates) {
+            console.log("Firestore real-time sync: Shipping rates updated.");
+            window.darShippingRates = data.rates;
+            try {
+              localStorage.setItem("dar_elsalam_shipping_rates_v1", JSON.stringify(data.rates));
+            } catch {}
+            if (typeof window.darUpdateShippingRatesUI === 'function') {
+              window.darUpdateShippingRatesUI(data.rates);
+            }
           }
         }
       }, (error) => {
-        console.warn("Firestore offer onSnapshot warning:", error);
+        console.warn("Firestore shipping rates onSnapshot warning:", error);
       });
 
-      // 6. Firestore Order Logger hook
+      // 7. Firestore Order Saver hook
       window.darSaveOrderToFirestore = async function(orderData) {
         try {
-          const ordersRef = collection(db, "orders");
-          await addDoc(ordersRef, {
+          const orderId = orderData.id || ('ORD-' + Date.now().toString(36).toUpperCase());
+          const orderDocRef = doc(db, "orders", String(orderId));
+          await setDoc(orderDocRef, {
             ...orderData,
+            id: orderId,
             timestamp: serverTimestamp()
           });
-          console.log("Order saved to Firestore successfully.");
+          console.log(`Order ${orderId} saved to Firestore successfully.`);
+          return true;
         } catch (err) {
-          console.warn("Could not save order to Firestore:", err);
+          console.error("Could not save order to Firestore:", err);
+          throw err;
         }
       };
 
@@ -2873,5 +3949,45 @@
 
   <!-- Main JavaScript File -->
   <script src="script.js"></script>
+
+  <!-- QR Code Generator Library (qrcode.js) -->
+  <script src="qrcode.min.js"></script>
+
+  <!-- QR Code Auto-Generation: generates live QR pointing to the new site URL -->
+  <script>
+    (function() {
+      const QR_URL = "https://mohanedhalim42-star.github.io/MohanedMohamed/";
+      const QR_COLOR_DARK  = "#000000";
+      const QR_COLOR_LIGHT = "#ffffff";
+
+      function makeQR(elementId, size) {
+        var el = document.getElementById(elementId);
+        if (!el || !window.QRCode) return;
+        // Clear any placeholder content
+        el.innerHTML = "";
+        new QRCode(el, {
+          text: QR_URL,
+          width:  size,
+          height: size,
+          colorDark:  QR_COLOR_DARK,
+          colorLight: QR_COLOR_LIGHT,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
+      // Generate all QR instances once the page is ready
+      function initAllQR() {
+        makeQR("qrModal_canvas", 170); // QR Modal
+        makeQR("qrNav",          140); // Nav dropdown
+        makeQR("qrMobile",       120); // Mobile drawer
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initAllQR);
+      } else {
+        initAllQR();
+      }
+    })();
+  </script>
 </body>
 </html>

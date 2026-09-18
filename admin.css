@@ -482,3 +482,232 @@ textarea.form-control {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   ENHANCED ORDERS & SHIPPING STYLES
+   ========================================================================== */
+.orders-table th,
+.orders-table td {
+  vertical-align: middle;
+}
+
+.order-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 240px;
+}
+
+.order-item-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  font-size: 0.82rem;
+}
+
+.order-item-qty {
+  font-weight: 800;
+  color: var(--admin-cyan);
+  background: rgba(0, 229, 255, 0.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.order-item-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-main);
+}
+
+.order-item-price {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.order-finance-box {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.wa-order-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #25d366;
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.wa-order-link:hover {
+  transform: scale(1.15);
+}
+
+/* Receipt Thumbnail in table */
+.receipt-thumb-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.receipt-thumb {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--admin-cyan);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.2);
+}
+
+.receipt-thumb:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+}
+
+.btn-view-receipt {
+  background: transparent;
+  border: none;
+  color: var(--admin-cyan);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-view-receipt:hover {
+  text-decoration: underline;
+}
+
+/* Status Badges */
+.order-status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.order-status-badge.status-pending {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.order-status-badge.status-confirmed {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+/* Shipping Rates Management UI */
+.shipping-quick-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uniform-rate-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shipping-rates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.shipping-rate-card {
+  background: rgba(11, 20, 38, 0.6);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.shipping-rate-card:hover {
+  border-color: rgba(0, 229, 255, 0.4);
+  transform: translateY(-2px);
+  background: rgba(11, 20, 38, 0.9);
+}
+
+.shipping-rate-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gov-name {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.gov-region-tag {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.shipping-rate-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 105px;
+}
+
+.gov-rate-input {
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 6px 8px;
+  color: var(--admin-cyan);
+}
+
+.currency-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

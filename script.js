@@ -13,7 +13,8 @@ const STORE_CONFIG = {
   name: "Dar Elsalam Store",
   phone: "01008991290",
   whatsappNumber: "201008991290",
-  siteUrl: "https://dar-elsalam-store.firebaseapp.com",
+  instapayNumber: "+201210824115",
+  siteUrl: "https://mohanedhalim42-star.github.io/MohanedMohamed/",
   developer: {
     name: "Eng/ Mohaned Halim",
     phone: "01220702077",
@@ -23,8 +24,42 @@ const STORE_CONFIG = {
 
 const STORAGE_KEYS = {
   PRODUCTS: "dar_elsalam_products_v1",
+  OFFERS: "dar_elsalam_offers_v1",
   OFFER: "dar_elsalam_offer_v1",
-  ORDERS: "dar_elsalam_orders_v1"
+  ORDERS: "dar_elsalam_orders_v1",
+  CART: "dar_elsalam_cart_v1",
+  SHIPPING_RATES: "dar_elsalam_shipping_rates_v1"
+};
+
+// Default shipping rates for all 27 Egyptian governorates (used as baseline and fallback)
+const DEFAULT_SHIPPING_RATES = {
+  "الإسكندرية": 40,
+  "القاهرة": 60,
+  "الجيزة": 60,
+  "القليوبية": 60,
+  "البحيرة": 65,
+  "الغربية": 65,
+  "المنوفية": 65,
+  "الدقهلية": 65,
+  "كفر الشيخ": 65,
+  "الشرقية": 65,
+  "دمياط": 70,
+  "بورسعيد": 70,
+  "الإسماعيلية": 70,
+  "السويس": 70,
+  "الفيوم": 75,
+  "بني سويف": 75,
+  "المنيا": 80,
+  "أسيوط": 85,
+  "سوهاج": 90,
+  "قنا": 90,
+  "الأقصر": 95,
+  "أسوان": 95,
+  "مطروح": 75,
+  "البحر الأحمر": 95,
+  "الوادي الجديد": 100,
+  "شمال سيناء": 90,
+  "جنوب سيناء": 95
 };
 
 const DEFAULT_PRODUCTS = [
@@ -130,11 +165,49 @@ const DEFAULT_PRODUCTS = [
 let storeProducts = [];
 let currentCategory = 'all';
 let searchQuery = '';
-let countdownInterval = null;
+const offerTimerIntervals = new Map();
+let cartItems = [];
+let receiptBase64Buffer = "";
 
 /* ==========================================================================
    DOM ELEMENTS
    ========================================================================== */
+// Cart Elements
+const openCartBtn = document.getElementById('openCartBtn');
+const openCartMobileBtn = document.getElementById('openCartMobileBtn');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartDrawer = document.getElementById('cartDrawer');
+const closeCartBtn = document.getElementById('closeCartBtn');
+const cartCountBadge = document.getElementById('cartCountBadge');
+const cartCountMobileBadge = document.getElementById('cartCountMobileBadge');
+const cartDrawerCount = document.getElementById('cartDrawerCount');
+const cartItemsContainer = document.getElementById('cartItemsContainer');
+const cartSubtotal = document.getElementById('cartSubtotal');
+const btnProceedCheckout = document.getElementById('btnProceedCheckout');
+const btnClearCart = document.getElementById('btnClearCart');
+const modalAddToCartBtn = document.getElementById('modalAddToCartBtn');
+
+// Checkout & InstaPay Elements
+const checkoutCartSummary = document.getElementById('checkoutCartSummary');
+const checkoutItemsCount = document.getElementById('checkoutItemsCount');
+const checkoutItemsList = document.getElementById('checkoutItemsList');
+const btnEditCartFromCheckout = document.getElementById('btnEditCartFromCheckout');
+const summaryProductsTotal = document.getElementById('summaryProductsTotal');
+const summaryGovName = document.getElementById('summaryGovName');
+const summaryShippingFee = document.getElementById('summaryShippingFee');
+const summaryGrandTotal = document.getElementById('summaryGrandTotal');
+const btnCopyInstapay = document.getElementById('btnCopyInstapay');
+const copyInstapayIcon = document.getElementById('copyInstapayIcon');
+const copyInstapayText = document.getElementById('copyInstapayText');
+const instapayPhoneDisplay = document.getElementById('instapayPhoneDisplay');
+const receiptFileInput = document.getElementById('receiptFileInput');
+const receiptDropzone = document.getElementById('receiptDropzone');
+const dropzonePrompt = document.getElementById('dropzonePrompt');
+const receiptPreviewBox = document.getElementById('receiptPreviewBox');
+const receiptPreviewImg = document.getElementById('receiptPreviewImg');
+const receiptFileNameDisplay = document.getElementById('receiptFileNameDisplay');
+const btnRemoveReceipt = document.getElementById('btnRemoveReceipt');
+const receiptErrorMsg = document.getElementById('receiptErrorMsg');
 const productsGrid = document.getElementById('productsGrid');
 const emptyStateContainer = document.getElementById('emptyStateContainer');
 const productSearchInput = document.getElementById('productSearchInput');
@@ -188,50 +261,38 @@ const orderAddress = document.getElementById('orderAddress');
 const orderNotes = document.getElementById('orderNotes');
 const btnSubmitWhatsApp = document.getElementById('btnSubmitWhatsApp');
 
-// Offers Elements
-const openingOfferCard = document.getElementById('openingOfferCard');
-const offerBannerImg = document.getElementById('offerBannerImg');
-const offerTitleText = document.getElementById('offerTitleText');
-const offerDescriptionText = document.getElementById('offerDescriptionText');
-const offerNewPriceText = document.getElementById('offerNewPriceText');
-const offerOldPriceText = document.getElementById('offerOldPriceText');
-const offerDiscountText = document.getElementById('offerDiscountText');
-const countdownArea = document.getElementById('countdownArea');
-const offerExpiredNotice = document.getElementById('offerExpiredNotice');
-const timerDays = document.getElementById('timerDays');
-const timerHours = document.getElementById('timerHours');
-const timerMinutes = document.getElementById('timerMinutes');
-const timerSeconds = document.getElementById('timerSeconds');
-const btnOfferOrder = document.getElementById('btnOfferOrder');
+// Offers Elements (Multi-Offer System)
+const offersContainer = document.getElementById('offersContainer');
+const offersLoadingState = document.getElementById('offersLoadingState');
+const offersEmptyState = document.getElementById('offersEmptyState');
 
 /* ==========================================================================
    1. PRODUCTS CATALOG & FILTERING
    ========================================================================== */
 
 /**
- * Initialize products – prefers Firestore (via onSnapshot hook in index.html).
- * Falls back to localStorage cache, then DEFAULT_PRODUCTS if nothing exists.
+ * Initialize products – displays loading state and waits for Firestore onSnapshot.
+ * ZERO reliance on LocalStorage to prevent ghost/flickering products.
  */
 function initProducts() {
-  // Try loading from localStorage cache first for instant display
-  const cached = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        storeProducts = parsed;
-        renderProducts();
-      }
-    } catch { /* ignore */ }
+  // If Firestore onSnapshot already arrived before DOMContentLoaded
+  if (window._pendingFirestoreProducts) {
+    storeProducts = window._pendingFirestoreProducts;
+    renderProducts();
+    return;
   }
 
-  // If nothing in cache, use defaults and render immediately
-  if (storeProducts.length === 0) {
-    storeProducts = [...DEFAULT_PRODUCTS];
-    renderProducts();
+  // Display clean loading state in productsGrid until onSnapshot responds
+  if (productsGrid) {
+    productsGrid.innerHTML = `
+      <div class="products-loading-state" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+        <div class="loading-spinner" style="width: 44px; height: 44px; border: 3px solid rgba(0, 229, 255, 0.2); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;"></div>
+        <p style="color: var(--text-secondary); font-size: 1.05rem;">جاري تحميل المنتجات مباشرة من قاعدة البيانات...</p>
+      </div>
+    `;
+    productsGrid.style.display = 'grid';
+    if (emptyStateContainer) emptyStateContainer.style.display = 'none';
   }
-  // Firestore's onSnapshot (in index.html) will call darUpdateProductsCatalog
-  // as soon as real-time data arrives, which will re-render automatically.
 }
 
 function renderProducts() {
@@ -249,7 +310,18 @@ function renderProducts() {
 
   if (filtered.length === 0) {
     productsGrid.style.display = 'none';
-    if (emptyStateContainer) emptyStateContainer.style.display = 'block';
+    if (emptyStateContainer) {
+      const emptyTitle = emptyStateContainer.querySelector('.empty-title');
+      const emptyDesc = emptyStateContainer.querySelector('.empty-desc');
+      if (storeProducts.length === 0) {
+        if (emptyTitle) emptyTitle.textContent = "لا توجد منتجات متوفرة حالياً";
+        if (emptyDesc) emptyDesc.textContent = "سيتم إضافة منتجات جديدة قريباً، تفضل بالتواصل معنا عبر واتساب للاستفسار.";
+      } else {
+        if (emptyTitle) emptyTitle.textContent = "لم نجد منتجات مطابقة لبحثك";
+        if (emptyDesc) emptyDesc.textContent = "جرب استخدام كلمات بحث مختلفة أو اضغط على تصنيف \"الكل\".";
+      }
+      emptyStateContainer.style.display = 'block';
+    }
     return;
   }
 
@@ -257,7 +329,7 @@ function renderProducts() {
   if (emptyStateContainer) emptyStateContainer.style.display = 'none';
 
   productsGrid.innerHTML = filtered.map(item => `
-    <article class="product-card" data-id="${item.id}">
+    <article class="product-card" data-id="${escapeHTML(String(item.id))}">
       <span class="product-badge">${escapeHTML(item.category)}</span>
       <div class="product-img-wrap">
         <img src="${escapeHTML(item.image || 'images/products/phone-repair.svg')}" alt="${escapeHTML(item.name)}" class="product-img" loading="lazy">
@@ -270,8 +342,11 @@ function renderProducts() {
           ${item.oldPrice ? `<span class="product-old-price">${escapeHTML(String(item.oldPrice))} ج.م</span>` : ''}
         </div>
         <div class="product-actions">
-          <button type="button" class="btn-product-details" onclick="window.darOpenProductModal(${item.id})">
-            عرض التفاصيل
+          <button type="button" class="btn-product-cart" onclick="window.darAddToCart('${escapeHTML(String(item.id))}', 1, event)" title="إضافة لعربة التسوق">
+            <span>أضف للسلة</span> 🛒
+          </button>
+          <button type="button" class="btn-product-details" onclick="window.darOpenProductModal('${escapeHTML(String(item.id))}')" title="عرض التفاصيل والمواصفات">
+            التفاصيل
           </button>
           <a href="https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(`مرحباً Dar Elsalam Store، أستفسر عن توفر منتج: ${item.name} (السعر: ${item.price} ج.م)`)}"
              target="_blank" rel="noopener noreferrer" class="btn-product-whatsapp" title="طلب مباشر عبر واتساب">
@@ -285,7 +360,7 @@ function renderProducts() {
 
 // Global hook for modal opener
 window.darOpenProductModal = function(productId) {
-  const product = storeProducts.find(p => p.id === productId);
+  const product = storeProducts.find(p => String(p.id) === String(productId));
   if (!product || !productModal) return;
 
   modalProductImg.src = product.image || 'images/products/phone-repair.svg';
@@ -304,6 +379,14 @@ window.darOpenProductModal = function(productId) {
     }
   }
 
+  // Add to Cart from Details Modal
+  if (modalAddToCartBtn) {
+    modalAddToCartBtn.onclick = (e) => {
+      window.darAddToCart(product, 1, e);
+      closeProductModal();
+    };
+  }
+
   // WhatsApp Order from Modal
   if (modalOrderWhatsAppBtn) {
     modalOrderWhatsAppBtn.onclick = () => {
@@ -316,9 +399,7 @@ window.darOpenProductModal = function(productId) {
   if (modalFillFormBtn) {
     modalFillFormBtn.onclick = () => {
       closeProductModal();
-      if (orderProduct) {
-        orderProduct.value = product.name;
-      }
+      window.darAddToCart(product, 1);
       const shippingSection = document.getElementById('shipping');
       if (shippingSection) {
         shippingSection.scrollIntoView({ behavior: 'smooth' });
@@ -373,113 +454,199 @@ if (resetFiltersBtn) {
 }
 
 /* ==========================================================================
-   2. OPENING OFFER & COUNTDOWN TIMER
+   2. MULTI-OFFERS RENDERER & COUNTDOWN TIMERS
    ========================================================================== */
 
 /**
- * Initialize opening offer – prefers Firestore (via onSnapshot in index.html).
- * Falls back to localStorage cache, then built-in default.
+ * Clear all active offer countdown timers to prevent memory leaks
  */
-function initOpeningOffer() {
-  // Try local cache for instant display
-  const cached = localStorage.getItem(STORAGE_KEYS.OFFER);
-  let offer = null;
-  if (cached) {
-    try { offer = JSON.parse(cached); } catch { /* ignore */ }
-  }
-
-  if (!offer) {
-    const defaultEnd = new Date();
-    defaultEnd.setDate(defaultEnd.getDate() + 5);
-    offer = {
-      enabled: true,
-      title: "باقة الافتتاح الكبرى: ساعة ذكية Ultra + AirPods Pro + شاحن 65W",
-      description: "احصل على أقوى مجموعة تكنولوجية متكاملة بسعر الافتتاح الاستثنائي! وفر أكثر من 35% مع ضمان حقيقي وشحن فوري لجميع المحافظات.",
-      newPrice: "1,250",
-      oldPrice: "1,950",
-      discountBadge: "وفر 700 ج.م (36%-)",
-      image: "images/offers/launch-offer.svg",
-      expiresAt: defaultEnd.toISOString()
-    };
-  }
-
-  applyOfferData(offer);
-  // Firestore's onSnapshot (in index.html) will call darUpdateOffer when data arrives
+function clearAllOfferTimers() {
+  offerTimerIntervals.forEach((intervalId) => clearInterval(intervalId));
+  offerTimerIntervals.clear();
 }
 
-function applyOfferData(offer) {
-  if (!openingOfferCard) return;
+/**
+ * Start an individual countdown timer for a specific offer card
+ */
+function startOfferCountdown(offerId, expiresAt) {
+  const timerEl = document.getElementById(`offerTimer-${offerId}`);
+  const expiredEl = document.getElementById(`offerExpired-${offerId}`);
+  const countdownEl = document.getElementById(`offerCountdown-${offerId}`);
+  const orderBtnEl = document.getElementById(`offerOrderBtn-${offerId}`);
 
-  if (offer.enabled === false) {
-    openingOfferCard.style.display = 'none';
-    return;
-  }
-  openingOfferCard.style.display = 'block';
+  if (!timerEl) return;
 
-  if (offerTitleText && offer.title) offerTitleText.textContent = offer.title;
-  if (offerDescriptionText && offer.description) offerDescriptionText.textContent = offer.description;
-  if (offerNewPriceText && offer.newPrice) offerNewPriceText.innerHTML = `${offer.newPrice} <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small>`;
-  if (offerOldPriceText && offer.oldPrice) offerOldPriceText.textContent = `${offer.oldPrice} ج.م`;
-  if (offerDiscountText && offer.discountBadge) offerDiscountText.textContent = offer.discountBadge;
-  if (offerBannerImg && offer.image) offerBannerImg.src = offer.image;
-
-  if (btnOfferOrder) {
-    btnOfferOrder.onclick = (e) => {
-      e.preventDefault();
-      if (orderProduct) {
-        orderProduct.value = offer.title || "عرض الافتتاح الخاص";
-      }
-      const shippingSection = document.getElementById('shipping');
-      if (shippingSection) {
-        shippingSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    };
-  }
-
-  startCountdown(offer.expiresAt);
-}
-
-function startCountdown(expiresAt) {
-  if (countdownInterval) clearInterval(countdownInterval);
-
-  const targetDate = expiresAt ? new Date(expiresAt).getTime() : (Date.now() + 5 * 86400000);
+  const targetTime = expiresAt ? new Date(expiresAt).getTime() : (Date.now() + 7 * 86400000);
 
   function update() {
-    const now = Date.now();
-    const distance = targetDate - now;
+    const distance = targetTime - Date.now();
+    const pad = n => String(Math.max(0, n)).padStart(2, '0');
 
     if (distance <= 0) {
-      clearInterval(countdownInterval);
-      if (countdownArea) countdownArea.style.display = 'none';
-      if (offerExpiredNotice) offerExpiredNotice.style.display = 'block';
-      if (btnOfferOrder) {
-        btnOfferOrder.style.opacity = '0.5';
-        btnOfferOrder.style.pointerEvents = 'none';
+      if (offerTimerIntervals.has(offerId)) {
+        clearInterval(offerTimerIntervals.get(offerId));
+        offerTimerIntervals.delete(offerId);
+      }
+      if (countdownEl) countdownEl.style.display = 'none';
+      if (expiredEl) expiredEl.style.display = 'block';
+      if (orderBtnEl) {
+        orderBtnEl.style.opacity = '0.5';
+        orderBtnEl.style.pointerEvents = 'none';
       }
       return;
     }
 
-    if (countdownArea) countdownArea.style.display = 'block';
-    if (offerExpiredNotice) offerExpiredNotice.style.display = 'none';
-    if (btnOfferOrder) {
-      btnOfferOrder.style.opacity = '1';
-      btnOfferOrder.style.pointerEvents = 'auto';
+    if (countdownEl) countdownEl.style.display = 'block';
+    if (expiredEl) expiredEl.style.display = 'none';
+    if (orderBtnEl) {
+      orderBtnEl.style.opacity = '1';
+      orderBtnEl.style.pointerEvents = 'auto';
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const days = Math.floor(distance / 86400000);
+    const hours = Math.floor((distance % 86400000) / 3600000);
+    const minutes = Math.floor((distance % 3600000) / 60000);
+    const seconds = Math.floor((distance % 60000) / 1000);
 
-    const pad = (n) => String(n).padStart(2, '0');
-    if (timerDays) timerDays.textContent = pad(days);
-    if (timerHours) timerHours.textContent = pad(hours);
-    if (timerMinutes) timerMinutes.textContent = pad(minutes);
-    if (timerSeconds) timerSeconds.textContent = pad(seconds);
+    timerEl.innerHTML = `
+      <div class="offer-multi-timer-box"><div class="offer-multi-timer-num">${pad(days)}</div><div class="offer-multi-timer-unit">الأيام</div></div>
+      <div class="offer-multi-timer-box"><div class="offer-multi-timer-num">${pad(hours)}</div><div class="offer-multi-timer-unit">الساعات</div></div>
+      <div class="offer-multi-timer-box"><div class="offer-multi-timer-num">${pad(minutes)}</div><div class="offer-multi-timer-unit">الدقائق</div></div>
+      <div class="offer-multi-timer-box"><div class="offer-multi-timer-num">${pad(seconds)}</div><div class="offer-multi-timer-unit">الثواني</div></div>
+    `;
   }
 
   update();
-  countdownInterval = setInterval(update, 1000);
+  const intervalId = setInterval(update, 1000);
+  offerTimerIntervals.set(offerId, intervalId);
+}
+
+/**
+ * Render all offers dynamically into offersContainer
+ */
+function renderOffers(offers) {
+  if (!offersContainer) return;
+
+  // Hide loading indicator
+  if (offersLoadingState) offersLoadingState.style.display = 'none';
+
+  // Clear running timers
+  clearAllOfferTimers();
+
+  const validOffers = Array.isArray(offers) ? offers : [];
+
+  if (validOffers.length === 0) {
+    if (offersEmptyState) offersEmptyState.style.display = 'block';
+    const existingCards = offersContainer.querySelectorAll('.offer-card-multi');
+    existingCards.forEach(el => el.remove());
+    return;
+  }
+
+  if (offersEmptyState) offersEmptyState.style.display = 'none';
+
+  // Remove existing offer cards (keep loading/empty containers)
+  const existingCards = offersContainer.querySelectorAll('.offer-card-multi');
+  existingCards.forEach(el => el.remove());
+
+  validOffers.forEach(offer => {
+    const safeId = escapeHTML(String(offer.id));
+    const isExpired = offer.expiresAt && new Date(offer.expiresAt).getTime() <= Date.now();
+
+    // Discount percentage calculation
+    let discountBadge = '';
+    const numOld = Number(offer.oldPrice);
+    const numNew = Number(offer.newPrice);
+    if (numOld > 0 && numNew > 0 && numOld > numNew) {
+      const discountPercent = Math.round((1 - (numNew / numOld)) * 100);
+      const savings = numOld - numNew;
+      discountBadge = `وفر ${savings} ج.م (${discountPercent}%-)`;
+    }
+
+    const waMsg = encodeURIComponent(`مرحباً Dar Elsalam Store، أريد الاستفادة من العرض: ${offer.title} (بسعر: ${offer.newPrice} ج.م)`);
+
+    const cardEl = document.createElement('article');
+    cardEl.className = 'offer-card-multi';
+    cardEl.dataset.offerId = String(offer.id);
+
+    cardEl.innerHTML = `
+      <div class="offer-card-multi-img-wrap">
+        <img src="${escapeHTML(offer.image || 'images/offers/launch-offer.svg')}"
+             alt="${escapeHTML(offer.title)}"
+             class="offer-card-multi-img"
+             loading="lazy"
+             onerror="this.src='images/offers/launch-offer.svg'">
+      </div>
+      <div class="offer-card-multi-content">
+        <div class="offer-multi-badge">🔥 عرض افتتاح حصري لفترة محدودة</div>
+        <h3 class="offer-multi-title">${escapeHTML(offer.title)}</h3>
+        <div class="offer-multi-price-row">
+          <span class="offer-multi-new-price">${escapeHTML(String(offer.newPrice))} <small style="font-size: 1rem; color: #cbd5e1;">ج.م</small></span>
+          ${offer.oldPrice ? `<span class="offer-multi-old-price">${escapeHTML(String(offer.oldPrice))} ج.م</span>` : ''}
+          ${discountBadge ? `<span class="offer-multi-discount-badge">${escapeHTML(discountBadge)}</span>` : ''}
+        </div>
+        <div class="offer-multi-countdown" id="offerCountdown-${safeId}" ${isExpired ? 'style="display:none"' : ''}>
+          <div class="offer-multi-countdown-label">⏱️ ينتهي هذا العرض خلال:</div>
+          <div class="offer-multi-timer" id="offerTimer-${safeId}"></div>
+        </div>
+        <div class="offer-multi-expired" id="offerExpired-${safeId}" ${!isExpired ? 'style="display:none"' : ''}>
+          ⏳ انتهى هذا العرض — ترقبوا عروضنا القادمة قريباً
+        </div>
+        <div class="offer-multi-actions">
+          <a href="#shipping" class="btn btn-primary" id="offerOrderBtn-${safeId}"
+             style="background: linear-gradient(135deg, #ff416c, #ff4b2b); box-shadow: var(--glow-fire); ${isExpired ? 'opacity:0.5;pointer-events:none;' : ''}">
+            <span>اطلب هذا العرض الآن</span>
+            <span>⚡</span>
+          </a>
+          <a href="https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${waMsg}"
+             target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+            <span>حجز عبر واتساب</span>
+          </a>
+        </div>
+      </div>
+    `;
+
+    // Hook order button click to pre-fill orderProduct and scroll
+    const orderBtn = cardEl.querySelector(`#offerOrderBtn-${safeId}`);
+    if (orderBtn) {
+      orderBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (orderProduct) {
+          orderProduct.value = offer.title || "عرض الافتتاح الخاص";
+        }
+        const shippingSection = document.getElementById('shipping');
+        if (shippingSection) {
+          shippingSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+
+    offersContainer.appendChild(cardEl);
+
+    // Start timer if not expired
+    if (!isExpired) {
+      startOfferCountdown(offer.id, offer.expiresAt);
+    }
+  });
+}
+
+/**
+ * Initialize offers – checks pending snapshot or localStorage fallback
+ */
+function initOffers() {
+  if (Array.isArray(window._pendingFirestoreOffers)) {
+    renderOffers(window._pendingFirestoreOffers);
+    return;
+  }
+
+  const cached = localStorage.getItem(STORAGE_KEYS.OFFERS);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        renderOffers(parsed);
+      }
+    } catch { /* ignore */ }
+  }
 }
 
 /* ==========================================================================
@@ -562,14 +729,427 @@ if (qrModal) {
 }
 
 /* ==========================================================================
-   4. SHIPPING & ORDER FORM HANDLING
+   4. SHOPPING CART SYSTEM & CHECKOUT FLOW
    ========================================================================== */
+
+/**
+ * Initialize Cart from LocalStorage
+ */
+function initCart() {
+  const raw = localStorage.getItem(STORAGE_KEYS.CART);
+  if (raw) {
+    try {
+      cartItems = JSON.parse(raw);
+      if (!Array.isArray(cartItems)) cartItems = [];
+    } catch {
+      cartItems = [];
+    }
+  } else {
+    cartItems = [];
+  }
+  renderCartUI();
+  setupCartEventListeners();
+  setupCheckoutEventListeners();
+}
+
+/**
+ * Save Cart to LocalStorage and update UI
+ */
+function saveCart() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cartItems));
+  } catch (err) {
+    console.warn("Could not save cart to localStorage:", err);
+  }
+  renderCartUI();
+}
+
+/**
+ * Total quantity of items in cart
+ */
+function getCartCount() {
+  return cartItems.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+}
+
+/**
+ * Total price of items in cart
+ */
+function getCartSubtotal() {
+  return cartItems.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const qty = Number(item.quantity) || 1;
+    return sum + (price * qty);
+  }, 0);
+}
+
+/**
+ * Open Cart Drawer
+ */
+function openCartDrawer() {
+  if (cartDrawer && cartOverlay) {
+    cartDrawer.classList.add('open');
+    cartOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+/**
+ * Close Cart Drawer
+ */
+function closeCartDrawer() {
+  if (cartDrawer && cartOverlay) {
+    cartDrawer.classList.remove('open');
+    cartOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+/**
+ * Add Product to Cart
+ */
+window.darAddToCart = function(productOrId, qty = 1, event) {
+  if (event) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    if (btn) {
+      btn.classList.add('btn-added-pop');
+      setTimeout(() => btn.classList.remove('btn-added-pop'), 400);
+    }
+  }
+
+  let product = null;
+  if (typeof productOrId === 'object' && productOrId !== null) {
+    product = productOrId;
+  } else {
+    product = storeProducts.find(p => String(p.id) === String(productOrId));
+  }
+
+  if (!product) return;
+
+  const existingIndex = cartItems.findIndex(item => String(item.id) === String(product.id));
+  if (existingIndex !== -1) {
+    cartItems[existingIndex].quantity = (Number(cartItems[existingIndex].quantity) || 1) + qty;
+  } else {
+    cartItems.push({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price) || 0,
+      image: product.image || 'images/products/phone-repair.svg',
+      category: product.category || 'إلكترونيات',
+      quantity: qty
+    });
+  }
+
+  saveCart();
+  showToast(`✓ تمت إضافة "${product.name.slice(0, 26)}..." إلى عربة التسوق`);
+  
+  // Animate badge
+  if (cartCountBadge) {
+    cartCountBadge.classList.add('badge-bounce');
+    setTimeout(() => cartCountBadge.classList.remove('badge-bounce'), 500);
+  }
+};
+
+/**
+ * Update Cart Item Quantity
+ */
+window.darUpdateCartItemQty = function(productId, delta) {
+  const index = cartItems.findIndex(item => String(item.id) === String(productId));
+  if (index === -1) return;
+
+  cartItems[index].quantity = (Number(cartItems[index].quantity) || 1) + delta;
+  if (cartItems[index].quantity <= 0) {
+    cartItems.splice(index, 1);
+  }
+  saveCart();
+};
+
+/**
+ * Remove Item from Cart
+ */
+window.darRemoveFromCart = function(productId) {
+  cartItems = cartItems.filter(item => String(item.id) !== String(productId));
+  saveCart();
+};
+
+/**
+ * Clear Entire Cart
+ */
+function clearCart() {
+  if (cartItems.length === 0) return;
+  if (confirm('هل أنت متأكد من تفريغ جميع محتويات عربة التسوق؟')) {
+    cartItems = [];
+    saveCart();
+    showToast('تم تفريغ عربة التسوق بنجاح');
+  }
+}
+
+/**
+ * Render Cart UI (Drawer & Checkout Sync)
+ */
+function renderCartUI() {
+  const count = getCartCount();
+  const subtotal = getCartSubtotal();
+
+  // Badges
+  if (cartCountBadge) cartCountBadge.textContent = count;
+  if (cartCountMobileBadge) cartCountMobileBadge.textContent = count;
+  if (cartDrawerCount) cartDrawerCount.textContent = count;
+  if (checkoutItemsCount) checkoutItemsCount.textContent = count;
+
+  // Drawer Subtotal
+  if (cartSubtotal) cartSubtotal.textContent = `${subtotal} ج.م`;
+
+  // Drawer Items Container
+  if (cartItemsContainer) {
+    if (cartItems.length === 0) {
+      cartItemsContainer.innerHTML = `
+        <div class="cart-empty-state">
+          <span class="cart-empty-icon">🛒</span>
+          <h4>عربة التسوق فارغة حالياً</h4>
+          <p>تصفح كتالوج المنتجات واختر ما يناسبك لتتمكن من إتمام الطلب والشحن.</p>
+          <button type="button" class="btn btn-cyan" onclick="closeCartDrawer(); document.getElementById('products').scrollIntoView({behavior:'smooth'});" style="margin-top: 14px;">
+            تصفح المنتجات الآن
+          </button>
+        </div>
+      `;
+    } else {
+      cartItemsContainer.innerHTML = cartItems.map(item => `
+        <div class="cart-item-card" data-id="${escapeHTML(String(item.id))}">
+          <img src="${escapeHTML(item.image || 'images/products/phone-repair.svg')}" alt="${escapeHTML(item.name)}" class="cart-item-img" onerror="this.src='images/products/phone-repair.svg'">
+          <div class="cart-item-details">
+            <h5 class="cart-item-title">${escapeHTML(item.name)}</h5>
+            <div class="cart-item-price-unit">${Number(item.price) || 0} ج.م</div>
+            <div class="cart-item-qty-row">
+              <div class="cart-qty-ctrl">
+                <button type="button" class="btn-qty-dec" onclick="window.darUpdateCartItemQty('${escapeHTML(String(item.id))}', -1)">−</button>
+                <span class="cart-qty-num">${item.quantity || 1}</span>
+                <button type="button" class="btn-qty-inc" onclick="window.darUpdateCartItemQty('${escapeHTML(String(item.id))}', 1)">+</button>
+              </div>
+              <div class="cart-item-total-price">${(Number(item.price) || 0) * (item.quantity || 1)} ج.م</div>
+            </div>
+          </div>
+          <button type="button" class="btn-cart-remove" onclick="window.darRemoveFromCart('${escapeHTML(String(item.id))}')" title="حذف من السلة">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Sync Checkout Items Summary
+  renderCheckoutSummary();
+}
+
+/**
+ * Render Cart Summary inside Checkout Form Section
+ */
+function renderCheckoutSummary() {
+  if (!checkoutCartSummary) return;
+
+  if (cartItems.length === 0) {
+    if (checkoutItemsList) {
+      checkoutItemsList.innerHTML = `
+        <div class="checkout-empty-cart-hint">
+          <span>العربة فارغة حالياً. يرجى اختيار منتج أولاً لإتمام الشراء.</span>
+          <a href="#products" class="btn btn-secondary btn-sm" style="margin-right: 8px;">تصفح الكتالوج ↗</a>
+        </div>
+      `;
+    }
+  } else {
+    if (checkoutItemsList) {
+      checkoutItemsList.innerHTML = cartItems.map(item => `
+        <div class="checkout-item-row">
+          <div class="checkout-item-title-wrap">
+            <span class="checkout-item-qty-pill">${item.quantity || 1}×</span>
+            <span class="checkout-item-name">${escapeHTML(item.name)}</span>
+          </div>
+          <span class="checkout-item-subtotal">${(Number(item.price) || 0) * (item.quantity || 1)} ج.م</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  updateCheckoutTotals();
+}
+
+/**
+ * Update Financial Calculations in Checkout Card
+ */
+function updateCheckoutTotals() {
+  const subtotal = getCartSubtotal();
+  const gov = orderGovernorate ? orderGovernorate.value : 'الإسكندرية';
+  const shippingFee = getShippingRateForGov(gov);
+  const grandTotal = subtotal + shippingFee;
+
+  if (summaryProductsTotal) summaryProductsTotal.textContent = `${subtotal} ج.م`;
+  if (summaryGovName) summaryGovName.textContent = gov;
+  if (summaryShippingFee) summaryShippingFee.textContent = `${shippingFee} ج.م`;
+  if (summaryGrandTotal) summaryGrandTotal.textContent = `${grandTotal} ج.م`;
+}
+
+/**
+ * Get Shipping Rate for Governorate (prefers realtime Firestore sync -> cache -> default)
+ */
+function getShippingRateForGov(govName) {
+  if (window.darShippingRates && window.darShippingRates[govName] !== undefined) {
+    return Number(window.darShippingRates[govName]) || 0;
+  }
+  const cached = localStorage.getItem(STORAGE_KEYS.SHIPPING_RATES);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed && parsed[govName] !== undefined) {
+        return Number(parsed[govName]) || 0;
+      }
+    } catch {}
+  }
+  return DEFAULT_SHIPPING_RATES[govName] !== undefined ? DEFAULT_SHIPPING_RATES[govName] : 60;
+}
+
+// Hook called when Firestore shipping rates are updated in realtime
+window.darUpdateShippingRatesUI = function(newRates) {
+  updateCheckoutTotals();
+};
+
+/**
+ * Setup Cart Event Listeners
+ */
+function setupCartEventListeners() {
+  if (openCartBtn) openCartBtn.addEventListener('click', openCartDrawer);
+  if (openCartMobileBtn) {
+    openCartMobileBtn.addEventListener('click', () => {
+      closeMobileDrawer();
+      openCartDrawer();
+    });
+  }
+  if (closeCartBtn) closeCartBtn.addEventListener('click', closeCartDrawer);
+  if (cartOverlay) cartOverlay.addEventListener('click', closeCartDrawer);
+  if (btnClearCart) btnClearCart.addEventListener('click', clearCart);
+
+  if (btnProceedCheckout) {
+    btnProceedCheckout.addEventListener('click', () => {
+      closeCartDrawer();
+    });
+  }
+
+  if (btnEditCartFromCheckout) {
+    btnEditCartFromCheckout.addEventListener('click', openCartDrawer);
+  }
+}
+
+/**
+ * Setup Checkout, InstaPay, and Receipt Listeners
+ */
+function setupCheckoutEventListeners() {
+  // Governorate change -> update shipping rate live
+  if (orderGovernorate) {
+    orderGovernorate.addEventListener('change', updateCheckoutTotals);
+  }
+
+  // InstaPay quick copy
+  if (btnCopyInstapay) {
+    btnCopyInstapay.addEventListener('click', () => {
+      const number = STORE_CONFIG.instapayNumber || "+201210824115";
+      const copySuccess = () => {
+        if (copyInstapayIcon) copyInstapayIcon.textContent = "✓";
+        if (copyInstapayText) copyInstapayText.textContent = "تم النسخ!";
+        btnCopyInstapay.classList.add('copied');
+        showToast("✓ تم نسخ رقم InstaPay بنجاح (+201210824115)");
+        setTimeout(() => {
+          if (copyInstapayIcon) copyInstapayIcon.textContent = "📋";
+          if (copyInstapayText) copyInstapayText.textContent = "نسخ الرقم";
+          btnCopyInstapay.classList.remove('copied');
+        }, 2500);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(number).then(copySuccess).catch(() => {
+          fallbackCopyText(number);
+          copySuccess();
+        });
+      } else {
+        fallbackCopyText(number);
+        copySuccess();
+      }
+    });
+  }
+
+  // Receipt File Upload with Canvas Compression
+  if (receiptFileInput) {
+    receiptFileInput.addEventListener('change', handleReceiptUpload);
+  }
+
+  if (btnRemoveReceipt) {
+    btnRemoveReceipt.addEventListener('click', () => {
+      receiptBase64Buffer = "";
+      if (receiptFileInput) receiptFileInput.value = "";
+      if (receiptPreviewBox) receiptPreviewBox.style.display = "none";
+      if (dropzonePrompt) dropzonePrompt.style.display = "flex";
+      if (receiptErrorMsg) receiptErrorMsg.style.display = "none";
+    });
+  }
+}
+
+/**
+ * Process receipt image: read as DataURL and compress via Canvas to fit Firestore limits
+ */
+function handleReceiptUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('يرجى اختيار ملف صورة صالح (JPG, PNG, WEBP).');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      // Compress image using Canvas
+      const maxDim = 1000;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Quality 0.75 produces crisp receipts around 60-120KB
+      receiptBase64Buffer = canvas.toDataURL('image/jpeg', 0.75);
+
+      // Show preview
+      if (receiptPreviewImg) receiptPreviewImg.src = receiptBase64Buffer;
+      if (receiptFileNameDisplay) receiptFileNameDisplay.textContent = `✓ ${file.name} (${Math.round(file.size / 1024)} KB)`;
+      if (receiptPreviewBox) receiptPreviewBox.style.display = "flex";
+      if (dropzonePrompt) dropzonePrompt.style.display = "none";
+      if (receiptErrorMsg) receiptErrorMsg.style.display = "none";
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * Validate Checkout Form
+ */
 function validateOrderForm() {
   let isValid = true;
 
   const nameVal = orderFullName ? orderFullName.value.trim() : '';
   const phoneVal = orderPhone ? orderPhone.value.trim() : '';
-  const prodVal = orderProduct ? orderProduct.value.trim() : '';
+  const addressVal = orderAddress ? orderAddress.value.trim() : '';
 
   // Name
   if (!nameVal) {
@@ -579,7 +1159,7 @@ function validateOrderForm() {
     setFieldError('groupFullName', false);
   }
 
-  // Phone (Egyptian mobile check: 01[0125][0-9]{8})
+  // Phone (Egyptian mobile check)
   const phoneRegex = /^01[0125][0-9]{8}$/;
   const cleanPhone = phoneVal.replace(/[\s-]/g, '');
   if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
@@ -589,12 +1169,28 @@ function validateOrderForm() {
     setFieldError('groupPhone', false);
   }
 
-  // Product
-  if (!prodVal) {
-    setFieldError('groupProduct', true);
+  // Address
+  if (!addressVal) {
+    setFieldError('groupAddress', true);
     isValid = false;
   } else {
-    setFieldError('groupProduct', false);
+    setFieldError('groupAddress', false);
+  }
+
+  // Cart must not be empty
+  if (cartItems.length === 0) {
+    showToast("⚠️ عربة التسوق فارغة! من فضلك أضف منتجات قبل إتمام الشراء.");
+    isValid = false;
+  }
+
+  // Mandatory Receipt Check
+  if (!receiptBase64Buffer) {
+    if (receiptErrorMsg) receiptErrorMsg.style.display = 'block';
+    const dropzone = document.getElementById('receiptDropzone');
+    if (dropzone) dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    isValid = false;
+  } else {
+    if (receiptErrorMsg) receiptErrorMsg.style.display = 'none';
   }
 
   return isValid;
@@ -606,21 +1202,31 @@ function setFieldError(groupId, hasError) {
 }
 
 function getOrderPayload() {
+  const subtotal = getCartSubtotal();
+  const gov = orderGovernorate ? orderGovernorate.value : 'الإسكندرية';
+  const shipping = getShippingRateForGov(gov);
+  const grandTotal = subtotal + shipping;
+
   return {
     id: 'ORD-' + Date.now().toString(36).toUpperCase(),
     createdAt: new Date().toISOString(),
     fullName: orderFullName ? orderFullName.value.trim() : '',
     phone: orderPhone ? orderPhone.value.trim() : '',
-    product: orderProduct ? orderProduct.value.trim() : '',
-    quantity: orderQuantity ? parseInt(orderQuantity.value, 10) || 1 : 1,
-    governorate: orderGovernorate ? orderGovernorate.value : 'الإسكندرية',
+    governorate: gov,
     address: orderAddress ? orderAddress.value.trim() : '',
-    notes: orderNotes ? orderNotes.value.trim() : ''
+    notes: orderNotes ? orderNotes.value.trim() : '',
+    items: [...cartItems],
+    itemsSubtotal: subtotal,
+    shippingFee: shipping,
+    grandTotal: grandTotal,
+    receiptBase64: receiptBase64Buffer,
+    paymentMethod: "InstaPay (تم تحويل مصاريف الشحن مسبقاً)",
+    status: "قيد التحقق من الشحن"
   };
 }
 
 /**
- * Save order locally to localStorage as a cache backup.
+ * Save order locally to localStorage as a cache backup
  */
 function saveOrderLocally(orderData) {
   try {
@@ -633,47 +1239,66 @@ function saveOrderLocally(orderData) {
   }
 }
 
-// WhatsApp Order Button
-if (btnSubmitWhatsApp) {
-  btnSubmitWhatsApp.addEventListener('click', () => {
+// Local submit (Order confirmation)
+if (orderForm) {
+  orderForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     if (!validateOrderForm()) {
-      showToast("⚠️ من فضلك أكمل البيانات الإلزامية برقم هاتف صحيح");
+      showToast("⚠️ من فضلك أكمل جميع البيانات المطلوبة وأرفق صورة إيصال InstaPay");
       return;
     }
 
     const order = getOrderPayload();
 
-    // Save to Firestore (PRIMARY) via hook provided by index.html Firebase block
-    if (window.darSaveOrderToFirestore) {
-      window.darSaveOrderToFirestore(order);
+    // Disable submit button during processing
+    const submitBtn = document.getElementById('btnSubmitLocal');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'جاري إرسال وتأكيد طلبك...';
     }
 
-    // Also save locally as backup cache
-    saveOrderLocally(order);
+    try {
+      // 1. Save to Firestore (PRIMARY)
+      if (window.darSaveOrderToFirestore) {
+        await window.darSaveOrderToFirestore(order);
+      }
 
-    const waMsg = `📦 *طلب جديد من موقع Dar Elsalam Store*
-----------------------------------
-👤 *الاسم:* ${order.fullName}
-📞 *الهاتف:* ${order.phone}
-📱 *المنتج / الخدمة:* ${order.product}
-🔢 *الكمية:* ${order.quantity}
-📍 *المحافظة:* ${order.governorate}
-🏠 *العنوان:* ${order.address || 'غير محدد'}
-📝 *ملاحظات:* ${order.notes || 'لا يوجد'}
-----------------------------------
-🔗 تم الطلب عبر: ${STORE_CONFIG.siteUrl}`;
+      // 2. Cache locally as backup
+      saveOrderLocally(order);
 
-    window.open(`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(waMsg)}`, '_blank');
-    showToast("✓ جاري فتح محادثة الواتساب لتأكيد طلبك...");
+      // 3. Clear cart
+      cartItems = [];
+      saveCart();
+
+      // 4. Reset form & receipt
+      orderForm.reset();
+      receiptBase64Buffer = "";
+      if (receiptFileInput) receiptFileInput.value = "";
+      if (receiptPreviewBox) receiptPreviewBox.style.display = "none";
+      if (dropzonePrompt) dropzonePrompt.style.display = "flex";
+
+      showToast("✓ تم تأكيد طلبك بنجاح وجاري مراجعة إيصال التحويل! سيتواصل معك المندوب قريباً.");
+      alert(`🎉 تم استلام طلبك بنجاح!\nرقم الطلب: ${order.id}\nتم إرفاق إيصال تحويل مصاريف الشحن بنجاح.\nسيتواصل معك فريق متجر دار السلام لتأكيد موعد التسليم.`);
+
+    } catch (err) {
+      console.error("Order submission error:", err);
+      // Still save locally
+      saveOrderLocally(order);
+      showToast("✓ تم تسجيل الطلب محلياً وجاري المتابعة.");
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>تأكيد الطلب وإرسال إيصال التحويل</span> <span>✓</span>';
+      }
+    }
   });
 }
 
-// Local submit
-if (orderForm) {
-  orderForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+// WhatsApp Order Button
+if (btnSubmitWhatsApp) {
+  btnSubmitWhatsApp.addEventListener('click', async () => {
     if (!validateOrderForm()) {
-      showToast("⚠️ من فضلك تأكد من ملء الحقول المطلوبة بشكل صحيح");
+      showToast("⚠️ من فضلك أكمل البيانات الإلزامية برقم هاتف صحيح وصورة إيصال التحويل");
       return;
     }
 
@@ -681,14 +1306,38 @@ if (orderForm) {
 
     // Save to Firestore (PRIMARY)
     if (window.darSaveOrderToFirestore) {
-      window.darSaveOrderToFirestore(order);
+      try {
+        await window.darSaveOrderToFirestore(order);
+      } catch {}
     }
 
     // Cache locally as backup
     saveOrderLocally(order);
 
-    showToast("✓ تم تسجيل طلبك بنجاح! سيتواصل معك فريق المتجر قريباً.");
-    orderForm.reset();
+    // Format items list for WhatsApp
+    const itemsText = order.items.map(i => `• ${i.name} (الكمية: ${i.quantity}) - ${i.price * i.quantity} ج.م`).join('\n');
+
+    const waMsg = `📦 *طلب شراء جديد من متجر دار السلام*
+----------------------------------
+🔢 *رقم الطلب:* ${order.id}
+👤 *الاسم:* ${order.fullName}
+📞 *الهاتف:* ${order.phone}
+📍 *المحافظة:* ${order.governorate}
+🏠 *العنوان:* ${order.address}
+📝 *ملاحظات:* ${order.notes || 'لا يوجد'}
+----------------------------------
+🛒 *محتويات الطلب:*
+${itemsText}
+----------------------------------
+💵 *إجمالي المنتجات:* ${order.itemsSubtotal} ج.م
+🚚 *مصاريف الشحن (${order.governorate}):* ${order.shippingFee} ج.م
+💰 *الإجمالي الكلي:* ${order.grandTotal} ج.م
+⚡ *حالة الشحن:* تم تحويل مصاريف الشحن عبر InstaPay ورفع الإيصال في الموقع
+----------------------------------
+🔗 رابط المتجر: ${STORE_CONFIG.siteUrl}`;
+
+    window.open(`https://wa.me/${STORE_CONFIG.whatsappNumber}?text=${encodeURIComponent(waMsg)}`, '_blank');
+    showToast("✓ جاري فتح محادثة الواتساب لتأكيد طلبك مباشرة...");
   });
 }
 
@@ -761,30 +1410,48 @@ function escapeHTML(str) {
 
 /**
  * Called by Firestore onSnapshot when products collection changes.
- * Updates storeProducts and re-renders the catalog.
+ * Updates storeProducts and directly renders the DOM.
+ * ZERO reliance on LocalStorage to guarantee real-time sync across all devices.
  */
 window.darUpdateProductsCatalog = function(products) {
-  if (Array.isArray(products) && products.length > 0) {
-    storeProducts = products;
-    // Cache locally for offline fallback
-    try {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-    } catch { /* ignore quota errors */ }
-    renderProducts();
+  storeProducts = Array.isArray(products) ? products : [];
+  renderProducts();
+};
+
+/**
+ * Called when Firestore onSnapshot encounters a connection or query error.
+ */
+window.darProductsLoadError = function(error) {
+  console.warn("Firestore products sync error:", error);
+  if (productsGrid && storeProducts.length === 0) {
+    productsGrid.innerHTML = `
+      <div class="products-error-state" style="grid-column: 1 / -1; text-align: center; padding: 40px 20px;">
+        <p style="color: #ff6b81; font-size: 1.1rem; margin-bottom: 8px;">⚠️ تعذر تحميل المنتجات حالياً</p>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">يرجى التحقق من اتصال الإنترنت أو المحاولة لاحقاً.</p>
+      </div>
+    `;
+    productsGrid.style.display = 'grid';
+    if (emptyStateContainer) emptyStateContainer.style.display = 'none';
   }
 };
 
 /**
- * Called by Firestore onSnapshot when offer document changes.
- * Updates the offer banner and countdown.
+ * Called by Firestore onSnapshot when 'offers' collection changes.
+ * Updates the multi-offers list and individual countdown timers.
  */
+window.darUpdateOffers = function(offers) {
+  if (Array.isArray(offers)) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(offers));
+    } catch { /* ignore quota errors */ }
+    renderOffers(offers);
+  }
+};
+
+// Backwards compatibility hook
 window.darUpdateOffer = function(offer) {
   if (offer && typeof offer === 'object') {
-    // Cache locally for offline fallback
-    try {
-      localStorage.setItem(STORAGE_KEYS.OFFER, JSON.stringify(offer));
-    } catch { /* ignore quota errors */ }
-    applyOfferData(offer);
+    window.darUpdateOffers([offer]);
   }
 };
 
@@ -793,5 +1460,6 @@ window.darUpdateOffer = function(offer) {
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   initProducts();
-  initOpeningOffer();
+  initOffers();
+  initCart();
 });

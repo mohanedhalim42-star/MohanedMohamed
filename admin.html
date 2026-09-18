@@ -17,15 +17,12 @@
       <p style="color: var(--text-muted); font-size: 0.9rem;">أدخل رمز المرور السري للدخول إلى إدارة المنتجات والعروض</p>
       
       <form id="pinForm">
-        <input type="password" id="pinInput" class="pin-input" maxlength="8" placeholder="••••" autofocus required>
+        <input type="password" id="pinInput" class="pin-input" maxlength="20" placeholder="••••••" autofocus required>
         <p id="pinError" style="color: var(--admin-danger); font-size: 0.85rem; display: none; margin-bottom: 14px;">رمز المرور غير صحيح!</p>
         <button type="submit" class="btn btn-cyan" style="width: 100%; justify-content: center; padding: 12px;">
           تسجيل الدخول للوحة التحكم
         </button>
       </form>
-      <div style="margin-top: 20px;">
-        <small style="color: var(--text-muted); font-size: 0.8rem;">(رمز المرور الافتراضي: <strong>1234</strong> — يمكنك تعديله من الإعدادات)</small>
-      </div>
       <div style="margin-top: 16px;">
         <a href="index.html" style="color: var(--admin-cyan); font-size: 0.9rem;">← العودة للمتجر الرئيسي</a>
       </div>
@@ -62,6 +59,12 @@
           <button class="admin-nav-btn" data-tab="ordersTab">
             <span>📦</span>
             <span>سجل الطلبات المسجلة</span>
+          </button>
+        </li>
+        <li>
+          <button class="admin-nav-btn" data-tab="shippingTab">
+            <span>🚚</span>
+            <span>إدارة أسعار الشحن</span>
           </button>
         </li>
         <li>
@@ -140,62 +143,35 @@
         <div class="admin-topbar">
           <div>
             <h1 class="admin-page-title">إدارة عروض الافتتاح 🔥</h1>
-            <p class="admin-page-desc">تحكم في العرض الترويجي الحصري، مؤقت العد التنازلي، والأسعار</p>
+            <p class="admin-page-desc">أضف وعدّل واحذف العروض الترويجية — تظهر فوراً في المتجر مع عداد تنازلي لكل عرض</p>
           </div>
+          <button id="btnAddNewOffer" class="btn btn-cyan">
+            <span>➕ إضافة عرض جديد</span>
+          </button>
         </div>
 
         <div class="admin-card">
-          <form id="offerConfigForm" class="form-grid">
-            
-            <div class="form-group full">
-              <label class="switch-label">
-                <input type="checkbox" id="offerEnabledCheckbox">
-                <span>تفعيل ونشر هذا العرض في واجهة المتجر الرئيسية</span>
-              </label>
-            </div>
-
-            <div class="form-group full">
-              <label for="offerTitleInput">عنوان العرض الترويجي</label>
-              <input type="text" id="offerTitleInput" class="form-control" required>
-            </div>
-
-            <div class="form-group full">
-              <label for="offerDescInput">الوصف التفصيلي للعرض</label>
-              <textarea id="offerDescInput" class="form-control" rows="3" required></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="offerNewPriceInput">السعر بعد الخصم (ج.م)</label>
-              <input type="number" id="offerNewPriceInput" class="form-control" required>
-            </div>
-
-            <div class="form-group">
-              <label for="offerOldPriceInput">السعر الأصلي قبل الخصم (ج.م)</label>
-              <input type="number" id="offerOldPriceInput" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label for="offerDiscountBadgeInput">شارة الخصم (نص الشارة)</label>
-              <input type="text" id="offerDiscountBadgeInput" class="form-control" placeholder="مثال: وفر 700 ج.م (36%-)">
-            </div>
-
-            <div class="form-group">
-              <label for="offerExpiryInput">تاريخ ووقت انتهاء العد التنازلي للعرض</label>
-              <input type="datetime-local" id="offerExpiryInput" class="form-control" required>
-            </div>
-
-            <div class="form-group full">
-              <label for="offerImageInput">مسار صورة العرض أو رابطها</label>
-              <input type="text" id="offerImageInput" class="form-control" placeholder="images/offers/launch-offer.svg">
-            </div>
-
-            <div class="form-group full" style="margin-top: 10px;">
-              <button type="submit" class="btn btn-cyan" style="padding: 12px 30px;">
-                <span>حفظ وتحديث العرض الآن 💾</span>
-              </button>
-            </div>
-
-          </form>
+          <div class="card-title-row" style="margin-bottom: 18px;">
+            <h3>العروض الحالية (<span id="offersCount">0</span>)</h3>
+            <span style="font-size: 0.85rem; color: var(--admin-cyan);">* تُحدَّث فورياً في واجهة المتجر عبر Firestore</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">الصورة</th>
+                  <th>عنوان العرض</th>
+                  <th>السعر الجديد</th>
+                  <th>السعر القديم</th>
+                  <th>ينتهي في</th>
+                  <th style="width: 140px; text-align: center;">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="offersTableBody">
+                <!-- Dynamically populated via admin.js -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -203,33 +179,99 @@
       <section id="ordersTab" class="tab-section" style="display: none;">
         <div class="admin-topbar">
           <div>
-            <h1 class="admin-page-title">سجل الطلبات الواردة</h1>
-            <p class="admin-page-desc">الطلبات التي قام العملاء بتأكيدها عبر نموذج الشحن في الموقع</p>
+            <h1 class="admin-page-title">سجل الطلبات ومراجعة إيصالات InstaPay</h1>
+            <p class="admin-page-desc">مراجعة إيصالات تحويل مصاريف الشحن، تفاصيل المنتجات، وتأكيد جاهزية الطلب للشحن</p>
           </div>
-          <button id="btnClearOrders" class="btn btn-secondary">
-            <span>مسح السجل</span>
-          </button>
+          <div style="display: flex; gap: 10px;">
+            <button id="btnClearOrders" class="btn btn-secondary">
+              <span>مسح السجل المحلي</span>
+            </button>
+          </div>
         </div>
 
         <div class="admin-card">
+          <div class="card-title-row" style="margin-bottom: 18px;">
+            <h3>الطلبات الواردة (<span id="ordersCount">0</span>)</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <label for="filterOrderStatus" style="font-size: 0.88rem; color: var(--text-muted);">تصفية بالحالة:</label>
+              <select id="filterOrderStatus" class="form-control" style="width: auto; padding: 6px 14px;">
+                <option value="all">كل الطلبات</option>
+                <option value="pending">قيد التحقق من الشحن</option>
+                <option value="confirmed">تم التأكيد / تم الدفع</option>
+              </select>
+            </div>
+          </div>
+
           <div class="table-responsive">
-            <table class="admin-table">
+            <table class="admin-table orders-table">
               <thead>
                 <tr>
-                  <th>رقم الطلب</th>
-                  <th>تاريخ الطلب</th>
-                  <th>اسم العميل</th>
-                  <th>رقم الهاتف</th>
-                  <th>المحافظة</th>
-                  <th>المنتج والكمية</th>
-                  <th>العنوان والملاحظات</th>
+                  <th style="width: 110px;">رقم الطلب والتاريخ</th>
+                  <th>بيانات العميل</th>
+                  <th>المحافظة والعنوان</th>
+                  <th>محتويات الطلب</th>
+                  <th style="width: 130px;">الحساب المالي</th>
+                  <th style="width: 100px; text-align: center;">إيصال InstaPay</th>
+                  <th style="width: 150px; text-align: center;">حالة الدفع والشحن</th>
+                  <th style="width: 140px; text-align: center;">إجراءات</th>
                 </tr>
               </thead>
               <tbody id="ordersTableBody">
-                <!-- Dynamically populated -->
+                <!-- Dynamically populated via admin.js -->
               </tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: SHIPPING RATES ==================== -->
+      <section id="shippingTab" class="tab-section" style="display: none;">
+        <div class="admin-topbar">
+          <div>
+            <h1 class="admin-page-title">إدارة أسعار الشحن للمحافظات 🚚</h1>
+            <p class="admin-page-desc">حدد تكلفة الشحن لكل محافظة من محافظات مصر (27 محافظة) ليتم احتسابها تلقائياً للعميل عند إتمام الطلب</p>
+          </div>
+          <button id="btnSaveShippingRatesTop" class="btn btn-cyan">
+            <span>💾 حفظ جميع الأسعار في Firestore</span>
+          </button>
+        </div>
+
+        <!-- Quick Presets Card -->
+        <div class="admin-card" style="margin-bottom: 24px;">
+          <div class="card-title-row">
+            <h3>⚡ أدوات التسعير السريع</h3>
+          </div>
+          <div class="shipping-quick-bar">
+            <button type="button" id="btnApplyDefaultRates" class="btn btn-secondary">
+              <span>🪄 تطبيق أسعار الشحن المقترحة</span>
+            </button>
+            <div class="uniform-rate-control">
+              <input type="number" id="uniformRateInput" class="form-control" placeholder="مثال: 60" style="width: 120px;" min="0">
+              <button type="button" id="btnApplyUniformRate" class="btn btn-secondary">
+                <span>تطبيق هذا السعر على كل المحافظات</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 27 Governorates Rates Grid -->
+        <div class="admin-card">
+          <div class="card-title-row" style="margin-bottom: 18px;">
+            <h3>تسعير المحافظات (27 محافظة)</h3>
+            <span style="font-size: 0.85rem; color: var(--admin-cyan);">* تنعكس الأسعار فوراً في صفحة إتمام الطلب عند اختيار المحافظة</span>
+          </div>
+
+          <form id="shippingRatesForm">
+            <div class="shipping-rates-grid" id="shippingRatesGrid">
+              <!-- Dynamically populated via admin.js -->
+            </div>
+
+            <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 14px;">
+              <button type="submit" class="btn btn-cyan" style="padding: 12px 36px; font-size: 1rem;">
+                <span>💾 حفظ وتحديث أسعار الشحن الآن</span>
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
@@ -238,14 +280,14 @@
         <div class="admin-topbar">
           <div>
             <h1 class="admin-page-title">إعدادات النظام وربط قواعد البيانات</h1>
-            <p class="admin-page-desc">تعديل رمز المرور والتحكم في حفظ البيانات محلياً أو سحابياً</p>
+            <p class="admin-page-desc">تعديل رمز المرور والتحكم في حفظ البيانات</p>
           </div>
         </div>
 
         <div class="admin-card">
           <h3 style="margin-bottom: 16px;">تغيير رمز مرور لوحة التحكم (PIN)</h3>
           <div style="display: flex; gap: 14px; max-width: 450px;">
-            <input type="password" id="newPinInput" class="form-control" placeholder="الرمز الجديد (أرقام أو حروف)" maxlength="8">
+            <input type="password" id="newPinInput" class="form-control" placeholder="الرمز الجديد (أرقام أو حروف)" maxlength="20">
             <button id="btnSavePin" class="btn btn-cyan">حفظ الرمز</button>
           </div>
         </div>
@@ -264,10 +306,10 @@
         <div class="admin-card" style="border-color: rgba(16, 185, 129, 0.3);">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
             <span style="font-size: 1.5rem;">🔌</span>
-            <h3 style="color: #34d399;">ملاحظة هندسية لربط قاعدة بيانات سحابية (Backend Integration)</h3>
+            <h3 style="color: #34d399;">ملاحظة هندسية لربط قاعدة بيانات سحابية (Firebase Firestore)</h3>
           </div>
           <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7;">
-            يعمل هذا النظام حالياً بالكامل بواسطة متصفح العميل وتقنية <code>localStorage</code> لضمان استقلالية المشروع بدون أي خادم. لربطه بنظام سحابي حقيقي في المستقبل (Node.js/Express, Python/FastAPI, Supabase, أو Firebase)، قمنا بفصل دوال التخزين <code>getStoredProducts()</code> و<code>saveStoredProducts()</code> بحيث تحتاج فقط لاستبدالها بطلب <code>fetch('/api/products')</code> بكل سلاسة وأمان.
+            لوحة التحكم متصلة بـ Firebase Firestore بنظام المزامنة اللحظية (Realtime Sync)، حيث تنعكس التحديثات مباشرة على المتجر الرئيسي دون تأخير.
           </p>
         </div>
       </section>
@@ -351,6 +393,82 @@
     </div>
   </div>
 
+  <!-- ==================== RECEIPT PREVIEW MODAL ==================== -->
+  <div id="receiptModal" class="admin-modal-backdrop">
+    <div class="admin-modal" style="max-width: 650px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 id="receiptModalTitle" style="font-size: 1.25rem; font-weight: 800;">إيصال تحويل InstaPay</h3>
+        <button id="btnCloseReceiptModal" class="btn btn-secondary" style="padding: 6px 12px;">✕</button>
+      </div>
+      <div class="receipt-preview-container" style="background: rgba(0,0,0,0.6); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--admin-border); max-height: 65vh; overflow-y: auto;">
+        <img id="receiptModalImg" src="" alt="إيصال التحويل" style="max-width: 100%; border-radius: var(--radius-sm); display: block; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <p id="receiptModalEmpty" style="display: none; color: var(--text-muted); padding: 40px;">لا يوجد إيصال مرفق لهذا الطلب.</p>
+      </div>
+      <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <span id="receiptModalOrderInfo" style="font-size: 0.9rem; color: var(--admin-cyan);"></span>
+        <div style="display: flex; gap: 10px;">
+          <a id="receiptDownloadLink" href="#" download="instapay-receipt.jpg" class="btn btn-secondary">
+            <span>تحميل الإيصال 📥</span>
+          </a>
+          <button id="btnCloseReceiptBtn" class="btn btn-cyan">
+            <span>إغلاق</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADD / EDIT OFFER MODAL ==================== -->
+  <div id="offerEditorModal" class="admin-modal-backdrop">
+    <div class="admin-modal" style="max-width: 640px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h3 id="offerModalTitle" style="font-size: 1.3rem; font-weight: 800;">إضافة عرض جديد</h3>
+        <button id="btnCloseOfferEditor" class="btn btn-secondary" style="padding: 6px 12px;">✕</button>
+      </div>
+
+      <form id="offerForm" class="form-grid">
+        <input type="hidden" id="editOfferId">
+
+        <div class="form-group full">
+          <label for="offerTitleInput">عنوان العرض الترويجي *</label>
+          <input type="text" id="offerTitleInput" class="form-control" required placeholder="مثال: باقة الافتتاح الكبرى">
+        </div>
+
+        <div class="form-group">
+          <label for="offerNewPriceInput">السعر بعد الخصم (ج.م) *</label>
+          <input type="number" id="offerNewPriceInput" class="form-control" required min="0" placeholder="مثال: 1250">
+        </div>
+
+        <div class="form-group">
+          <label for="offerOldPriceInput">السعر الأصلي قبل الخصم (ج.م)</label>
+          <input type="number" id="offerOldPriceInput" class="form-control" min="0" placeholder="مثال: 1950">
+        </div>
+
+        <div class="form-group full">
+          <label for="offerExpiryInput">تاريخ ووقت انتهاء العرض (Countdown End Date) *</label>
+          <input type="datetime-local" id="offerExpiryInput" class="form-control" required>
+        </div>
+
+        <div class="form-group full">
+          <label for="offerImageInput">رابط أو مسار صورة العرض</label>
+          <input type="text" id="offerImageInput" class="form-control" placeholder="images/offers/launch-offer.svg أو رابط خارجي">
+          <div style="margin-top: 10px; display: flex; align-items: center; gap: 12px;">
+            <label class="btn btn-secondary" style="cursor: pointer;">
+              <span>📁 أو ارفع صورة من جهازك</span>
+              <input type="file" id="offerImageFileInput" accept="image/*" style="display: none;">
+            </label>
+            <span id="offerFileNameDisplay" style="font-size: 0.85rem; color: var(--admin-cyan);"></span>
+          </div>
+        </div>
+
+        <div class="form-group full" style="margin-top: 16px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" id="btnCancelOfferEdit" class="btn btn-secondary">إلغاء</button>
+          <button type="submit" class="btn btn-cyan" style="padding: 10px 28px;">حفظ العرض ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Firebase SDK, Analytics & Firestore Initialization -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
@@ -361,7 +479,8 @@
       doc, 
       setDoc, 
       deleteDoc, 
-      onSnapshot 
+      onSnapshot,
+      updateDoc
     } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -411,50 +530,138 @@
         }
       };
 
-      // Sync Offer to Firestore
-      window.darSyncOfferToFirestore = async function(offerData) {
+      // Save a new or updated Offer document to the 'offers' Firestore collection
+      window.darSaveOfferToFirestore = async function(offerData) {
         try {
-          await setDoc(doc(db, "settings", "offer"), offerData);
-          console.log("Admin: Offer synced to Firestore.");
+          const offerId = offerData.id || ('OFFER-' + Date.now().toString(36).toUpperCase());
+          await setDoc(doc(db, "offers", String(offerId)), {
+            ...offerData,
+            id: offerId,
+            updatedAt: new Date().toISOString()
+          });
+          console.log("Admin: Offer saved to Firestore.", offerId);
+          return offerId;
         } catch (err) {
-          console.warn("Error syncing offer to Firestore:", err);
+          console.warn("Error saving offer to Firestore:", err);
+          throw err;
+        }
+      };
+
+      // Delete an Offer document from the 'offers' Firestore collection
+      window.darDeleteOfferFromFirestore = async function(offerId) {
+        try {
+          await deleteDoc(doc(db, "offers", String(offerId)));
+          console.log("Admin: Offer deleted from Firestore.", offerId);
+        } catch (err) {
+          console.warn("Error deleting offer from Firestore:", err);
+          throw err;
+        }
+      };
+
+      // Sync Shipping Rates to Firestore
+      window.darSaveShippingRatesToFirestore = async function(rates) {
+        try {
+          await setDoc(doc(db, "settings", "shippingRates"), {
+            rates: rates,
+            updatedAt: new Date().toISOString()
+          });
+          console.log("Admin: Shipping rates synced to Firestore.");
+          return true;
+        } catch (err) {
+          console.error("Error syncing shipping rates to Firestore:", err);
+          throw err;
+        }
+      };
+
+      // Update Order Status in Firestore (e.g. Mark as Paid / Confirmed)
+      window.darUpdateOrderStatusInFirestore = async function(orderId, newStatus) {
+        try {
+          const orderDocRef = doc(db, "orders", String(orderId));
+          await setDoc(orderDocRef, { status: newStatus }, { merge: true });
+          console.log(`Admin: Order ${orderId} status updated to: ${newStatus}`);
+          return true;
+        } catch (err) {
+          console.error("Error updating order status in Firestore:", err);
+          throw err;
         }
       };
 
       // Realtime listener for products (keeps admin table in sync across devices)
       onSnapshot(collection(db, "products"), (snapshot) => {
-        if (!snapshot.empty) {
-          const remoteProducts = [];
-          snapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            remoteProducts.push({
-              id: data.id || docSnap.id,
-              name: data.name || '',
-              category: data.category || 'إلكترونيات',
-              image: data.image || 'images/products/phone-repair.svg',
-              price: data.price || '0',
-              oldPrice: data.oldPrice || '',
-              description: data.description || '',
-              features: Array.isArray(data.features) ? data.features : [],
-              available: data.available !== false
-            });
+        const remoteProducts = [];
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          remoteProducts.push({
+            id: data.id || docSnap.id,
+            name: data.name || '',
+            category: data.category || 'إلكترونيات',
+            image: data.image || 'images/products/phone-repair.svg',
+            price: data.price || '0',
+            oldPrice: data.oldPrice || '',
+            description: data.description || '',
+            features: Array.isArray(data.features) ? data.features : [],
+            available: data.available !== false
           });
-          remoteProducts.sort((a, b) => (b.id > a.id ? 1 : -1));
-          try {
-            localStorage.setItem("dar_elsalam_products_v1", JSON.stringify(remoteProducts));
-          } catch { /* ignore */ }
-          // Update admin products list and re-render table
-          if (typeof window.darAdminUpdateProducts === 'function') {
-            window.darAdminUpdateProducts(remoteProducts);
-          }
+        });
+        remoteProducts.sort((a, b) => (b.id > a.id ? 1 : -1));
+
+        // Update admin products list and re-render table directly
+        if (typeof window.darAdminUpdateProducts === 'function') {
+          window.darAdminUpdateProducts(remoteProducts);
+        } else {
+          window._adminPendingProducts = remoteProducts;
         }
       }, (err) => console.warn("Admin products sync error:", err));
+
+      // Realtime listener for 'offers' collection
+      onSnapshot(collection(db, "offers"), (snapshot) => {
+        const remoteOffers = [];
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          remoteOffers.push({
+            id: data.id || docSnap.id,
+            title: data.title || '',
+            image: data.image || 'images/offers/launch-offer.svg',
+            newPrice: data.newPrice || '',
+            oldPrice: data.oldPrice || '',
+            expiresAt: data.expiresAt || '',
+            updatedAt: data.updatedAt || ''
+          });
+        });
+        remoteOffers.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+        if (typeof window.darAdminUpdateOffers === 'function') {
+          window.darAdminUpdateOffers(remoteOffers);
+        } else {
+          window._adminPendingOffers = remoteOffers;
+        }
+      }, (err) => console.warn("Admin offers sync error:", err));
+
+      // Realtime listener for shipping rates
+      onSnapshot(doc(db, "settings", "shippingRates"), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data && data.rates) {
+            try {
+              localStorage.setItem("dar_elsalam_shipping_rates_v1", JSON.stringify(data.rates));
+            } catch { /* ignore */ }
+            if (typeof window.darAdminUpdateShippingRates === 'function') {
+              window.darAdminUpdateShippingRates(data.rates);
+            } else {
+              window._adminPendingShippingRates = data.rates;
+            }
+          }
+        }
+      }, (err) => console.warn("Shipping rates sync error:", err));
 
       // Realtime listener for incoming orders
       onSnapshot(collection(db, "orders"), (snapshot) => {
         const remoteOrders = [];
         snapshot.forEach(docSnap => {
-          remoteOrders.push(docSnap.data());
+          const data = docSnap.data();
+          remoteOrders.push({
+            id: data.id || docSnap.id,
+            ...data
+          });
         });
         remoteOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         try {
